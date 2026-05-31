@@ -22,7 +22,7 @@
       && chown -R $USER_NAME:$USER_NAME /nix
 
     USER $USER_NAME
-    RUN mkdir ~/.cache && mkdir /nix/_cache_nix && ln -s /nix/_cache_nix ~/.cache/nix
+    RUN mkdir /nix/_cache_nix && ln -s /nix/_cache_nix ~/.cache
     ENV PATH="/home/''${USER_NAME}/.nix-profile/bin:/nix/var/nix/profiles/default/bin:''${PATH}"
 
     # workaround for /project being root owned when `docker run ... command`
