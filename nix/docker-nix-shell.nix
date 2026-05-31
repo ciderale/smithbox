@@ -26,8 +26,8 @@
       directory = /project
     EOF
   '';
-  docker-nix = pkgs.writeShellApplication {
-    name = "docker-nix";
+  docker-nix-shell = pkgs.writeShellApplication {
+    name = "docker-nix-shell";
     text = ''
       USER_NAME=${user}
       VOL="docker-nix-store-$USER_NAME"
@@ -56,4 +56,4 @@
     '';
   };
 in
-  docker-nix
+  docker-nix-shell
