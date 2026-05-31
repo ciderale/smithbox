@@ -2,9 +2,13 @@
   pkgs ? import <nixpkgs> {},
   #user ? ''"$USER"'',
   user ? "claude",
-  docker-run-options ? ''-v "$PWD:/project" -w /project'',
+  projectDir ? "/project",
+  gitRoot,
+  docker-run-options ? [''-v "${gitRoot}:${projectDir}" -w ${projectDir}''],
   docker-container-args ? ''"''${@}"'',
 }: let
+  inherit (pkgs) lib;
+
   dockerfile = pkgs.writeText "Dockerfile" ''
     FROM debian:bookworm-slim
 
@@ -24,7 +28,7 @@
     # workaround for /project being root owned when `docker run ... command`
     RUN cat > ~/.gitconfig <<EOF
     [safe]
-      directory = /project
+      directory = ${projectDir}
     EOF
   '';
   docker-nix-shell = pkgs.writeShellApplication {
@@ -45,8 +49,12 @@
         docker volume create "$VOL" > /dev/null
       }
 
+      function stripProject() {
+        echo "''${1/#${gitRoot}/${projectDir}}"
+      }
+
       function run() {
-        docker run --rm -ti -v "$VOL:/nix" ${docker-run-options} "$IMAGE" ${docker-container-args}
+        docker run --rm -ti -v "$VOL:/nix" ${lib.concatStringsSep " " docker-run-options} "$IMAGE" ${docker-container-args}
       }
 
       function testrun() {

@@ -17,10 +17,22 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-{pkgs, ...}: {
+{
+  pkgs,
+  config,
+  lib,
+  ...
+}: let
+  gitRoot = config.git.root.shellVariable;
+in {
   # NOTE: configuration.dev.nix is for local developer environment
   # this (typically) extends configuration.ci.nix with dev-only dependencies
-  imports = [./configuration.ci.nix];
+  imports = [./configuration.ci.nix ./docker-nix-shell.module.nix];
+
+  git.root.enable = true;
+  docker-sandbox.enable = true;
+  docker-sandbox.mounts.readWrite = [gitRoot];
+  docker-sandbox.mounts.readOnly = ["${gitRoot}/nix"];
 
   # enable treefmt for formatting with multiple formatters
   # https://github.com/numtide/treefmt-nix?tab=readme-ov-file#supported-programs
@@ -30,7 +42,6 @@
 
   #additional packages: search.nixos.org
   packages = [
-    (import ./docker-nix-shell.nix {inherit pkgs;})
     #pkgs.k9s
     #pkgs.google-cloud-sdk
     #pkgs.awscli2
