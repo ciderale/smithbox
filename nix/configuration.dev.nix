@@ -31,6 +31,7 @@ in {
 
   git.root.enable = true;
   docker-sandbox.enable = true;
+  docker-sandbox.direnv.enable = true;
   docker-sandbox.mounts.readWrite = [gitRoot];
   docker-sandbox.mounts.readOnly = ["${gitRoot}/nix"];
 

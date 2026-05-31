@@ -6,6 +6,7 @@
   gitRoot,
   docker-run-options ? [''-v "${gitRoot}:${projectDir}" -w ${projectDir}''],
   docker-container-args ? ''"''${@}"'',
+  enableDirenv ? false,
 }: let
   inherit (pkgs) lib;
 
@@ -24,6 +25,12 @@
     USER $USER_NAME
     RUN mkdir /nix/_cache_nix && ln -s /nix/_cache_nix ~/.cache
     ENV PATH="/home/''${USER_NAME}/.nix-profile/bin:/nix/var/nix/profiles/default/bin:''${PATH}"
+
+    ${
+      if enableDirenv
+      then "RUN nix profile install nixpkgs#direnv nixpkgs#nix-direnv"
+      else ""
+    }
 
     # workaround for /project being root owned when `docker run ... command`
     RUN cat > ~/.gitconfig <<EOF

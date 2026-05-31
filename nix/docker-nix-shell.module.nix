@@ -15,10 +15,16 @@
     roMounts
     rwMounts
   ];
-  docker-container-args = "nix develop .";
+  enableDirenv = cfg.direnv.enable;
+  cmd = ''"''${@:-bash}"'';
+  docker-container-args =
+    if enableDirenv
+    then ''direnv allow && direnv exec . ${cmd}''
+    else ''nix develop . --command ${cmd}'';
 in {
   options.docker-sandbox = {
     enable = lib.mkEnableOption "docker-sandbox";
+    direnv.enable = lib.mkEnableOption "direnv" // {default = true;};
     user = lib.mkOption {
       type = types.str;
       default = "claude";
@@ -41,7 +47,7 @@ in {
   config = lib.mkIf cfg.enable {
     packages = [
       (import ./docker-nix-shell.nix {
-        inherit pkgs docker-run-options docker-container-args;
+        inherit pkgs docker-run-options docker-container-args enableDirenv;
         inherit (cfg) user projectDir;
         gitRoot = config.git.root.shellVariable;
       })
