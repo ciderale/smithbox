@@ -19,6 +19,12 @@
     USER $USER_NAME
     RUN mkdir ~/.cache && mkdir /nix/_cache_nix && ln -s /nix/_cache_nix ~/.cache/nix
     ENV PATH="/home/''${USER_NAME}/.nix-profile/bin:/nix/var/nix/profiles/default/bin:''${PATH}"
+
+    # workaround for /project being root owned when `docker run ... command`
+    RUN cat > ~/.gitconfig <<EOF
+    [safe]
+      directory = /project
+    EOF
   '';
   docker-nix = pkgs.writeShellApplication {
     name = "docker-nix";
