@@ -30,6 +30,7 @@
 
   #additional packages: search.nixos.org
   packages = [
+    (import ./nix-docker.nix {inherit pkgs;})
     #pkgs.k9s
     #pkgs.google-cloud-sdk
     #pkgs.awscli2
