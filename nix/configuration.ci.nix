@@ -44,6 +44,7 @@
   packages = [
     #    pkgs.nodejs_24
     pkgs.curl
+    pkgs.git # workaround in nix-shell-parts that implicitly depends on git
   ];
 
   imports = [
