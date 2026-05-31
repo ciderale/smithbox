@@ -2,7 +2,8 @@
   pkgs ? import <nixpkgs> {},
   #user ? ''"$USER"'',
   user ? "claude",
-  docker-args ? ''-v "$PWD:/project" -w /project'',
+  docker-run-options ? ''-v "$PWD:/project" -w /project'',
+  docker-container-args ? ''"''${@}"'',
 }: let
   dockerfile = pkgs.writeText "Dockerfile" ''
     FROM debian:bookworm-slim
@@ -45,7 +46,7 @@
       }
 
       function run() {
-        docker run --rm -ti -v "$VOL:/nix" ${docker-args} "$IMAGE" "$@"
+        docker run --rm -ti -v "$VOL:/nix" ${docker-run-options} "$IMAGE" ${docker-container-args}
       }
 
       function testrun() {
