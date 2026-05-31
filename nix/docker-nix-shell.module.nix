@@ -19,7 +19,7 @@
   cmd = ''"''${@:-bash}"'';
   docker-container-args =
     if enableDirenv
-    then ''direnv allow && direnv exec . ${cmd}''
+    then ''sh -c "direnv allow && direnv exec . \"''${@:-bash}\" " ''
     else ''nix develop . --command ${cmd}'';
 in {
   options.docker-sandbox = {

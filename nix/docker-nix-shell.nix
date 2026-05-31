@@ -40,6 +40,7 @@
   '';
   docker-nix-shell = pkgs.writeShellApplication {
     name = "docker-nix-shell";
+    extraShellCheckFlags = ["-e" "SC2145"];
     text = ''
       USER_NAME=${user}
       VOL="docker-nix-store-$USER_NAME"
