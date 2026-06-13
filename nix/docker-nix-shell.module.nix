@@ -21,7 +21,7 @@
     then ''sh -c "sleep 1 && direnv allow && direnv exec . \"''${@:-bash}\" " ''
     else ''sh -c "sleep 1 && nix develop --quiet . --command \"''${@:-bash}\" "'';
   extraDockerfile = lib.optionals enableDirenv [
-    "RUN nix profile add nixpkgs#direnv nixpkgs#nix-direnv nixpkgs#bashInteractive"
+    "RUN nix profile add nixpkgs#direnv nixpkgs#nix-direnv"
   ];
 in {
   options.docker-sandbox = {
@@ -40,6 +40,7 @@ in {
   };
   config = lib.mkIf cfg.enable {
     packages = [
+      pkgs.bashInteractive # for nicer shell in the sandbox
       (import ./docker-nix-shell.nix {
         inherit pkgs extraDockerfile docker-run-options docker-container-args;
       })
