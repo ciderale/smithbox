@@ -16,10 +16,10 @@
     rwMounts
   ];
   enableDirenv = cfg.direnv.enable;
-  docker-container-args =
-    if enableDirenv
-    then ''sh -c "sleep 1 && direnv allow && direnv exec . \"''${@:-bash}\" " ''
-    else ''sh -c "sleep 1 && nix develop --quiet . --command \"''${@:-bash}\" "'';
+  docker-container-args = ''"$@"'';
+  #if enableDirenv
+  #then ''sh -c "sleep 1 && direnv allow && direnv exec . \"''${@:-bash}\" " ''
+  #else ''sh -c "sleep 1 && nix develop --quiet . --command \"''${@:-bash}\" "'';
   extraDockerfile = lib.optionals enableDirenv [
     "RUN nix profile add nixpkgs#direnv nixpkgs#nix-direnv"
   ];

@@ -10,6 +10,17 @@
 }: let
   inherit (pkgs) lib;
 
+  entrypoint = pkgs.writeTextFile {
+    name = "entrypoint.sh";
+    destination = "/bin/entrypoint.sh";
+    executable = true;
+    text = ''
+      #!/usr/bin/env sh
+      sleep 1 # workaround for volume mount permission
+      direnv allow && exec direnv exec . "$@"
+      #exec nix develop --no-warn-dirty . --command "$@"
+    '';
+  };
   dockerfile = pkgs.writeText "Dockerfile" ''
     FROM debian:bookworm-slim
 
@@ -30,6 +41,11 @@
     ENV PATH="''${HOME}/.nix-profile/bin:/nix/var/nix/profiles/default/bin:''${PATH}"
 
     ${lib.concatStringsSep "\n" extraDockerfile}
+
+    # for caching: ${entrypoint}
+    COPY --from=entrypoint bin/entrypoint.sh /entrypoint.sh
+    ENTRYPOINT [ "/entrypoint.sh" ]
+    CMD ["bash"]
   '';
   docker-nix-shell = pkgs.writeShellApplication {
     name = "docker-nix-shell";
@@ -46,6 +62,7 @@
       function init() {
         if ! docker image inspect "$IMAGE" >/dev/null 2>&1; then
           docker build -t "$IMAGE_NAME:latest" -t "$IMAGE" \
+            --build-context "entrypoint=${entrypoint}" \
             --build-arg "USER_NAME=$USER_NAME" \
             --build-arg "HOME=$HOME_DIR" \
             - < ${dockerfile}
