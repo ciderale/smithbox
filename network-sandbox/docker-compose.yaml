@@ -1,0 +1,75 @@
+services:
+  dns-fw:
+    build:
+      dockerfile: Dockerfile.dnsmasq
+    hostname: dns-fw
+    cap_add:
+      - NET_ADMIN
+    sysctls:
+      net.ipv6.conf.all.disable_ipv6: "1"
+    command: >
+      sh -c "
+        set -eu
+        ip addr
+        nft list ruleset
+        nft -f /nftables.conf
+        nft list ruleset
+        exec dnsmasq -k --conf-file=/etc/dnsmasq.conf
+      "
+    volumes:
+      - ./dnsmasq.conf:/etc/dnsmasq.conf:ro
+      - ./nftables.conf:/nftables.conf:ro
+    networks:
+      - int
+#    healthcheck: TODO: make better healthcheck
+#      test: ["CMD-SHELL", "nslookup squid 127.0.0.1 >/dev/null"]
+#      interval: 5s
+#      timeout: 2s
+#      retries: 5
+
+  squid:
+    image: ubuntu/squid:latest
+    hostname: squid
+    networks:
+      - int
+        #    healthcheck:  TODO: make better healthcheck
+#      # having curl or similar would be better
+#      #test: ["CMD-SHELL", "nc -z 127.0.0.1 3128"]
+#      ## does not work correctly!
+#      test: ["CMD-SHELL", "bash -c 'echo > /dev/tcp/127.0.0.1/3128'"]
+#      interval: 5s
+#      timeout: 2s
+#      retries: 5
+
+  sandbox:
+    #profiles: [sandbox]
+    image: alpine:latest
+    network_mode: service:dns-fw
+    environment:
+      HTTP_PROXY: http://squid:3128
+      HTTPS_PROXY: http://squid:3128
+      http_proxy: http://squid:3128
+      https_proxy: http://squid:3128
+    volumes:
+      - ./resolv.conf:/etc/resolv.conf:ro
+        #    depends_on:
+#      dns-fw:
+#  condition: service_started
+#      squid:
+#        condition: service_started
+    command: >
+      sh -c "
+        set -euo pipefail
+        ip addr
+        sleep 5
+        echo starting
+        env
+        echo installing
+        apk add -v --no-cache curl
+        echo install done
+        curl -v --fail google.com
+        echo -e 'hello \n\n' | curl -4 -v telnet://google.ch:80
+      "
+
+networks:
+  int:

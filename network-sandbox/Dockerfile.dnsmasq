@@ -1,0 +1,6 @@
+FROM debian:bookworm
+
+RUN apt-get update && \
+    apt-get install -y dnsmasq nftables iproute2 dnsutils
+ 
+CMD ["dnsmasq", "-k", "--log-facility=-"]
