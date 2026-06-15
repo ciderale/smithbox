@@ -30,6 +30,8 @@ services:
   squid:
     image: ubuntu/squid:latest
     hostname: squid
+    volumes:
+      - ./10-http.conf:/etc/squid/conf.d/10-http.conf:ro
     networks:
       - int
         #    healthcheck:  TODO: make better healthcheck
@@ -62,14 +64,18 @@ services:
         set -euo pipefail
         ip addr
         sleep 5
-        echo starting
+        echo starting ---------------------------------
         env
         echo installing
         apk add -v --no-cache curl
-        echo install done
-        curl -v --fail google.com
-        echo -e 'hello \n\n' | curl -4 -v telnet://google.ch:80
+        echo install done -----------------------------
+        echo start calls -----------------------------
+        curl http://httpbin.org/post -d 'asdf'
+        curl http://httpbin.org/get
+        echo done -----------------------------
       "
+      #curl -v --fail google.com
+      #  echo -e 'hello \n\n' | curl -4 -v telnet://google.ch:80
 
 networks:
   int:
