@@ -21,31 +21,32 @@ services:
       - ./nftables.conf:/nftables.conf:ro
     networks:
       - int
-#    healthcheck: TODO: make better healthcheck
-#      test: ["CMD-SHELL", "nslookup squid 127.0.0.1 >/dev/null"]
-#      interval: 5s
-#      timeout: 2s
-#      retries: 5
+    healthcheck: 
+      test: ["CMD-SHELL", "nslookup squid 127.0.0.1 >/dev/null"]
+      interval: 5s
+      timeout: 2s
+      retries: 5
 
   squid:
-    image: ubuntu/squid:latest
+    build:
+      dockerfile: Dockerfile.squid
     hostname: squid
+    privileged: true
+    user: squid
     volumes:
-      - ./10-http.conf:/etc/squid/conf.d/10-http.conf:ro
+      - ./squid.conf:/etc/squid/squid.conf:ro
+      - fakeRootCA:/fakeRootCA:rw
     networks:
       - int
-        #    healthcheck:  TODO: make better healthcheck
-#      # having curl or similar would be better
-#      #test: ["CMD-SHELL", "nc -z 127.0.0.1 3128"]
-#      ## does not work correctly!
-#      test: ["CMD-SHELL", "bash -c 'echo > /dev/tcp/127.0.0.1/3128'"]
-#      interval: 5s
-#      timeout: 2s
-#      retries: 5
+    healthcheck:
+      test: ["CMD-SHELL", "nc -z 127.0.0.1 3128"]
+      interval: 5s
+      timeout: 2s
+      retries: 5
 
   sandbox:
-    #profiles: [sandbox]
-    image: alpine:latest
+    build:
+      dockerfile: Dockerfile.sandbox
     network_mode: service:dns-fw
     environment:
       HTTP_PROXY: http://squid:3128
@@ -54,28 +55,32 @@ services:
       https_proxy: http://squid:3128
     volumes:
       - ./resolv.conf:/etc/resolv.conf:ro
-        #    depends_on:
-#      dns-fw:
-#  condition: service_started
-#      squid:
-#        condition: service_started
+      - type: volume
+        source: fakeRootCA
+        target: /usr/local/share/ca-certificates
+        volume:
+          nocopy: true
+    depends_on:
+      dns-fw:
+        condition: service_healthy
+      squid:
+        condition: service_healthy
     command: >
       sh -c "
-        set -euo pipefail
-        ip addr
-        sleep 5
-        echo starting ---------------------------------
-        env
-        echo installing
-        apk add -v --no-cache curl
-        echo install done -----------------------------
-        echo start calls -----------------------------
-        curl http://httpbin.org/post -d 'asdf'
-        curl http://httpbin.org/get
-        echo done -----------------------------
+        set -x
+        echo '------------------- should succeed---------------------'
+        curl --fail --silent https://httpbin.org/get || echo 'ERROR should not fail'
+        echo '------------------- should succeed---------------------'
+        curl --fail --silent http://httpbin.org/get || echo 'ERROR should not fail'
+        wait
+        echo '------------------- should fail -----------------------'
+        curl --fail --silent https://httpbin.org/post -d 'asdf' || echo 'expected to fail'
+        echo '------------------- should fail -----------------------'
+        curl --fail --silent http://httpbin.org/post -d 'asdf' || echo 'expected to fail'
+        wait
       "
-      #curl -v --fail google.com
-      #  echo -e 'hello \n\n' | curl -4 -v telnet://google.ch:80
+volumes:
+  fakeRootCA:
 
 networks:
   int:

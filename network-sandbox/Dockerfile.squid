@@ -1,0 +1,41 @@
+FROM elestio/squid
+
+USER root
+
+RUN apk add -v --no-cache openssl netcat-openbsd
+
+RUN mkdir -p /var/cache/squid /var/log/squid /run/squid /etc/squid/certs /fakeRootCA \
+    && chown -R squid:squid /var/cache/squid /var/log/squid /run/squid /etc/squid/certs /fakeRootCA \
+    && /usr/lib/squid/security_file_certgen -c -s /var/lib/ssl_db -M 4MB \
+    && chown -R squid:squid /var/lib/ssl_db \
+    && ls -lah /fakeRootCA
+
+
+RUN cat <<'EOF' > /entrypoint.sh \
+    && chmod +x /entrypoint.sh
+#!/bin/sh
+set -e
+
+(cd /etc/squid/certs;
+ sleep 1
+ openssl genrsa -out rootCA.key 4096
+ openssl req -x509 -new -nodes \
+  -key rootCA.key \
+  -sha256 -days 3650 \
+  -out rootCA.crt \
+  -subj "/CN=MySquidRootCA"
+ cp rootCA.crt /fakeRootCA/
+)
+
+
+echo "Starting container..."
+rm /etc/squid/conf.d.tail/*
+touch /etc/squid/conf.d.tail/log.conf
+
+rm -f /var/run/squid/squid.pid;
+/usr/sbin/squid -f /etc/squid/squid.conf --foreground -z
+exec /usr/sbin/squid -f /etc/squid/squid.conf --foreground -YCd 2
+EOF
+
+USER squid
+ENTRYPOINT [ "/entrypoint.sh" ]
