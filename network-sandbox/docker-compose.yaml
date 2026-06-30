@@ -23,9 +23,11 @@ services:
       - int
     healthcheck: 
       test: ["CMD-SHELL", "nslookup squid 127.0.0.1 >/dev/null"]
-      interval: 5s
+      interval: 30s
       timeout: 2s
       retries: 5
+      start_period: 10s
+      start_interval: 0.5s
 
   squid:
     build:
@@ -39,9 +41,11 @@ services:
       - int
     healthcheck:
       test: ["CMD-SHELL", "nc -z 127.0.0.1 3128"]
-      interval: 5s
+      interval: 30s
       timeout: 2s
       retries: 5
+      start_period: 10s
+      start_interval: 0.5s
 
   sandbox:
     build:
