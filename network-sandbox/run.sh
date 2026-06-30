@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-trap 'docker compose down -v --timeout 0' EXIT KILL
+trap 'docker compose down --timeout 0' EXIT KILL
 
 # rebuild images
 #docker compose build squid && docker compose down -v
