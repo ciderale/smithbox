@@ -47,6 +47,7 @@ as_user() {
 	" sh "$@"
 }
 
+update-ca-certificates
 workaround_macos_volume_mount_permission
 ensure_home
 ensure_store_permission
