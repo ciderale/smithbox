@@ -17,7 +17,6 @@ RUN cat <<'EOF' > /entrypoint.sh \
 set -e
 
 (cd /etc/squid/certs;
- sleep 1
  openssl genrsa -out rootCA.key 4096
  openssl req -x509 -new -nodes \
   -key rootCA.key \
