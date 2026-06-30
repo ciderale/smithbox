@@ -31,7 +31,6 @@ services:
     build:
       dockerfile: Dockerfile.squid
     hostname: squid
-    privileged: true
     user: squid
     volumes:
       - ./squid.conf:/etc/squid/squid.conf:ro
