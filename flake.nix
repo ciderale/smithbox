@@ -41,8 +41,9 @@
         inputs.nix-shell-parts.flakeModules.default
       ];
 
-      perSystem = {...}: {
+      perSystem = {self', ...}: {
         imports = [./docker-devshell];
+        packages.smithbox = self'.packages.docker-devshell;
         # define your shell environments, for example:
         # - ci: jenkins builds with minimal dependencies
         # - default: extends ci with all tools need for local development
