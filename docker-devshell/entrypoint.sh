@@ -36,6 +36,7 @@ ensure_store_permission() {
 ensure_home() {
 	mkdir -p $HOME
 	mkdir -p $HOME/.local/state/nix/profiles
+	ln -fs /nix/var/nix/profiles/per-user/root/profile $HOME/.nix-profile
 	chown -R $UID:$GID $HOME
 }
 
