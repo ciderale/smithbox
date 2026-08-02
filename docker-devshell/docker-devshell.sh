@@ -27,6 +27,13 @@ slug() {
 HOME_VOLUME=docker-nix-$(slug "$HOME_DIR")
 STORE_VOLUME=docker-nix-store
 
+if [ "${DOCKER_DEVSHELL_RESET:-false}" == "true" ]; then
+	echo "Reset dockervolumes"
+	set -x
+	docker volume rm "$HOME_VOLUME" "$STORE_VOLUME" || echo "Issue in volume reset"
+	set +x
+fi
+
 # actual execution
 docker build --quiet -t "$IMAGE" .
 
