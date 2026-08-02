@@ -11,9 +11,9 @@ MODE=direnv
 
 # various settings for the container environment
 # note: home is not mounted, but serves for persisting across sessions
-HOME_DIR=$HOME
-NEW_UID=$(id -u)
-NEW_GID=$(id -g)
+HOME_DIR="$HOME"
+NEW_UID="$(id -u)"
+NEW_GID="$(id -g)"
 PROJECT_DIR=/data
 
 # Naming of the image
@@ -32,9 +32,9 @@ docker build --quiet -t "$IMAGE" .
 
 docker run --rm -ti \
 	-v "$STORE_VOLUME:/nix" \
-	-e UID=$NEW_UID -e GID=$NEW_GID \
-	-v $HOME_VOLUME:$HOME_DIR -e HOME=$HOME_DIR\
-	-e MODE=$MODE \
+	-e "UID=$NEW_UID" -e "GID=$NEW_GID" \
+	-v "$HOME_VOLUME:$HOME_DIR" -e "HOME=$HOME_DIR" \
+	-e "MODE=$MODE" \
 	-v "$PROJECT_ROOT:$PROJECT_DIR" -w "$PROJECT_DIR" \
 	"${DOCKER_RUN_ARGS[@]}" \
 	"$IMAGE" "$@"

@@ -42,6 +42,7 @@
       ];
 
       perSystem = {...}: {
+        imports = [./docker-devshell];
         # define your shell environments, for example:
         # - ci: jenkins builds with minimal dependencies
         # - default: extends ci with all tools need for local development
