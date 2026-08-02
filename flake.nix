@@ -43,6 +43,7 @@
 
       perSystem = {self', ...}: {
         imports = [./docker-devshell];
+        packages.default = self'.packages.smithbox;
         packages.smithbox = self'.packages.docker-devshell;
         # define your shell environments, for example:
         # - ci: jenkins builds with minimal dependencies
