@@ -14,7 +14,7 @@ MODE=direnv
 HOME_DIR="$HOME"
 NEW_UID="$(id -u)"
 NEW_GID="$(id -g)"
-PROJECT_DIR=/data
+PROJECT_DIR=/project
 
 # Naming of the image
 IMAGE_NAME=docker-devshell
