@@ -17,8 +17,10 @@ NEW_GID="$(id -g)"
 PROJECT_DIR=/project
 
 # Naming of the image
+: "${DOCKER_CONTEXT:=.}"
 IMAGE_NAME=docker-devshell
-IMAGE="$IMAGE_NAME:latest"
+TAG=$(cd $DOCKER_CONTEXT && sha256sum -- * | sha256sum | awk '{print $1}')
+IMAGE="$IMAGE_NAME:$TAG"
 
 # Naming for the volums
 slug() {
@@ -28,15 +30,18 @@ HOME_VOLUME=docker-nix-$(slug "$HOME_DIR")
 STORE_VOLUME=docker-nix-store
 
 if [ "${DOCKER_DEVSHELL_RESET:-false}" == "true" ]; then
-	echo "Reset dockervolumes"
+	echo "NOTE: Resetting docker volumes"
 	set -x
 	docker volume rm "$HOME_VOLUME" "$STORE_VOLUME" || echo "Issue in volume reset"
 	set +x
 fi
 
-# actual execution
-docker build --quiet -t "$IMAGE" .
+# Build image if necessary
+if ! docker image inspect "$IMAGE" >/dev/null 2>&1; then
+	docker build --quiet -t "$IMAGE" "$DOCKER_CONTEXT"
+fi
 
+# Run the environment
 docker run --rm -ti \
 	-v "$STORE_VOLUME:/nix" \
 	-e "UID=$NEW_UID" -e "GID=$NEW_GID" \
