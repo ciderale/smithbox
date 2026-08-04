@@ -17,9 +17,9 @@ NEW_GID="$(id -g)"
 PROJECT_DIR=/project
 
 # Naming of the image
-: "${DOCKER_BUILD_CONTEXT:=.}"
+: "${DOCKERFILE:=./Dockerfile}"
 IMAGE_NAME=docker-devshell
-TAG=$(cd $DOCKER_BUILD_CONTEXT && sha256sum -- * | sha256sum | awk '{print $1}')
+TAG=$(sha256sum "$DOCKERFILE" | awk '{print $1}')
 IMAGE="$IMAGE_NAME:$TAG"
 
 # Naming for the volums
@@ -38,7 +38,7 @@ fi
 
 # Build image if necessary
 if ! docker image inspect "$IMAGE" >/dev/null 2>&1; then
-	docker build --quiet -t "$IMAGE" "$DOCKER_BUILD_CONTEXT"
+	cat "$DOCKERFILE" | docker build -t "$IMAGE" -
 fi
 
 # Run the environment
