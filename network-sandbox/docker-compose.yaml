@@ -36,12 +36,12 @@ services:
       dockerfile: Dockerfile.docker-devshell
     network_mode: service:dns-fw
     environment:
+      NAMESERVER: 127.0.0.1 #dnsmasq
       HTTP_PROXY: http://proxy:3128
       HTTPS_PROXY: http://proxy:3128
       http_proxy: http://proxy:3128
       https_proxy: http://proxy:3128
     volumes:
-      - ./resolv.conf:/etc/resolv.conf:ro
       - nixStore:/nix
       - type: volume
         source: fakeRootCA

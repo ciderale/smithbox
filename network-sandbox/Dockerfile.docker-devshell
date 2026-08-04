@@ -53,6 +53,12 @@ ensure_home() {
 	chown -R $UID:$GID $HOME
 }
 
+ensure_resolv_conf() {
+	if [ -n "$NAMESERVER" ]; then
+		echo "nameserver $NAMESERVER" > /etc/resolv.conf
+	fi
+}
+
 as_user() {
 	exec gosu $UID:$GID sh -c "
 		export HOME=$HOME
@@ -63,6 +69,7 @@ as_user() {
 
 update-ca-certificates
 workaround_macos_volume_mount_permission
+ensure_resolv_conf
 ensure_home
 ensure_store_permission
 as_user "${@}"
