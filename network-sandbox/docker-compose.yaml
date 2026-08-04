@@ -38,9 +38,7 @@ services:
       HTTPS_PROXY: http://proxy:3128
       http_proxy: http://proxy:3128
       https_proxy: http://proxy:3128
-    working_dir: /project
     volumes:
-      - ../:/project
       - ./resolv.conf:/etc/resolv.conf:ro
       - nixStore:/nix
       - type: volume
@@ -53,20 +51,6 @@ services:
         condition: service_healthy
       proxy:
         condition: service_healthy
-    command: >
-      sh -c "
-        set -x
-        echo '------------------- should succeed---------------------'
-        curl --fail --silent https://httpbin.org/get || (echo 'ERROR should not fail'; exit 1)
-        echo '------------------- should succeed---------------------'
-        curl --fail --silent http://httpbin.org/get || (echo 'ERROR should not fail'; exit 2)
-        wait
-        echo '------------------- should fail -----------------------'
-        curl --fail --silent https://httpbin.org/post -d 'asdf' && exit 3 || echo 'expected to fail'
-        echo '------------------- should fail -----------------------'
-        curl --fail --silent http://httpbin.org/post -d 'asdf' && exit 4 || echo 'expected to fail'
-        wait
-      "
 volumes:
   fakeRootCA:
 
