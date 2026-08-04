@@ -42,9 +42,8 @@
       ];
 
       perSystem = {self', ...}: {
-        imports = [./docker-devshell];
+        imports = [./docker-devshell ./network-sandbox];
         packages.default = self'.packages.smithbox;
-        packages.smithbox = self'.packages.docker-devshell;
         # define your shell environments, for example:
         # - ci: jenkins builds with minimal dependencies
         # - default: extends ci with all tools need for local development
