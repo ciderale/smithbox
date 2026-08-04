@@ -2,6 +2,11 @@ services:
   dns-fw:
     environment:
       TCP_ALLOWED_HOSTS: asdf.com
+  proxy:
+    environment:
+      #HTTP_ALLOW_ALL: httpbin.org
+      #HTTP_DENY_ALL: httpbin.org
+      HTTP_SAFE_METHODS: get post
   sandbox:
     environment:
       UID: 501

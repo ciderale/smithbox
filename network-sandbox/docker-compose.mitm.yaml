@@ -1,13 +1,11 @@
 services:
   proxy:
     image: mitmproxy/mitmproxy
-    networks:
-      - int
-    environment:
-      PYTHONUNBUFFERED: "1"
+    networks: [int]
     command: |
       bash -c '
         set -x;
+        export PYTHONUNBUFFERED=1
         rm -f /fakeRootCA/mitmproxy-ca.crt
         timeout 1 mitmdump --set confdir=/.mitmproxy || true;
         cp /.mitmproxy/mitmproxy-ca-cert.pem /fakeRootCA/mitmproxy-ca.crt;
