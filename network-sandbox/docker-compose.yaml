@@ -48,8 +48,6 @@ services:
         target: /usr/local/share/ca-certificates
         volume:
           nocopy: true
-      - $PWD/..:/project
-    working_dir: /project
     depends_on: # docker compose run automatically starts/stops dependent services
       dns-fw:
         condition: service_healthy
