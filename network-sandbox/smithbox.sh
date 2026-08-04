@@ -3,8 +3,17 @@
 : "${DOCKER_BUILD_CONTEXT:=.}"
 COMPOSE_ARGS=(
     -f "$DOCKER_BUILD_CONTEXT/docker-compose.yaml"
-    -f "$DOCKER_BUILD_CONTEXT/docker-compose.sandbox.yaml"
 )
+
+while [[ "${1:-}" == "-f" ]]; do
+    shift
+    if [[ -z "${1:-}" ]]; then
+        echo "missing argument for -f" >&2
+        exit 1
+    fi
+    COMPOSE_ARGS+=(-f "$1")
+    shift
+done
 
 docker-compose() {
 	docker compose "${COMPOSE_ARGS[@]}" "$@"
