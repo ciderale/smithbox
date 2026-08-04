@@ -2,5 +2,29 @@ FROM debian:bookworm
 
 RUN apt-get update && \
     apt-get install -y dnsmasq nftables iproute2 dnsutils
- 
+
+RUN cat <<'EOF' > /entrypoint.sh \
+    && chmod +x /entrypoint.sh
+#!/usr/bin/env bash
+set -eu
+
+echo "network namespace hardening"
+ip addr
+nft list ruleset
+nft -f /nftables.conf
+nft list ruleset
+
+echo "generate tcp_allowed rules"
+for host in $TCP_ALLOWED_HOSTS; do
+  echo "server=/$host/127.0.0.11"
+done >/etc/dnsmasq.tcp_allowed.conf
+
+exec dnsmasq -k \
+    --conf-file=/etc/dnsmasq.conf \
+    --conf-file=/etc/dnsmasq.tcp_allowed.conf
+
+EOF
+
+ENTRYPOINT [ "/entrypoint.sh" ]
+
 CMD ["dnsmasq", "-k", "--log-facility=-"]

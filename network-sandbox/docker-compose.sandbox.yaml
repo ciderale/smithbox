@@ -1,4 +1,7 @@
 services:
+  dns-fw:
+    environment:
+      TCP_ALLOWED_HOSTS: asdf.com
   sandbox:
     environment:
       UID: 501
