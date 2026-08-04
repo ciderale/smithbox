@@ -13,7 +13,7 @@ services:
       GID: 20
     working_dir: /project
     volumes:
-      - $PWD:/project
+      - ${PROJECT_ROOT:-$PWD}:/project
     command: >
       sh -c "
         nslookup asdf.com > /dev/null && echo OK || echo BAD should work

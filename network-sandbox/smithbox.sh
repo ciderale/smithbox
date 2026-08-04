@@ -4,6 +4,8 @@
 COMPOSE_ARGS=(
     -f "$DOCKER_BUILD_CONTEXT/docker-compose.yaml"
 )
+PROJECT_ROOT=$(git rev-parse --show-toplevel 2>/dev/null || echo "$PWD")
+export PROJECT_ROOT
 
 while [[ "${1:-}" == "-f" ]]; do
     shift
