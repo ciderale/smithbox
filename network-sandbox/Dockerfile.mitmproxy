@@ -1,3 +1,27 @@
+FROM mitmproxy/mitmproxy
+
+
+RUN cat <<'EOF' > /entrypoint.sh \
+    && chmod +x /entrypoint.sh
+#!/usr/bin/env bash
+set -eu
+
+set -x;
+export PYTHONUNBUFFERED=1
+
+rm -f /fakeRootCA/mitmproxy-ca.crt
+timeout 1 mitmdump --set confdir=/.mitmproxy || true;
+cp /.mitmproxy/mitmproxy-ca-cert.pem /fakeRootCA/mitmproxy-ca.crt;
+
+mitmweb --listen-host 0.0.0.0 --listen-port 3128 \
+    --web-host 0.0.0.0 \
+    --web-port 8081 \
+    --set confdir=/.mitmproxy \
+    --set web_password=password \
+    -s /mitm.rules.py
+EOF
+
+RUN cat <<'EOF' > /mitm.rules.py
 import os
 import re
 from mitmproxy import http, ctx
@@ -20,7 +44,6 @@ ctx.log.info(f"Allow all: {ALLOW}")
 ctx.log.info(f"Deny all: {DENY}")
 ctx.log.info(f"Default allowed method: {SAFE_METHODS}")
 
-
 def request(flow: http.HTTPFlow):
     host = flow.request.pretty_host.lower()
     method = flow.request.method.lower()
@@ -34,3 +57,6 @@ def request(flow: http.HTTPFlow):
             b"Blocked by proxy policy\n",
             {"Content-Type": "text/plain"},
         )
+EOF
+
+ENTRYPOINT [ "/entrypoint.sh" ]
