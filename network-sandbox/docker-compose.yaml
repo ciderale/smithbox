@@ -41,8 +41,10 @@ services:
       HTTPS_PROXY: http://proxy:3128
       http_proxy: http://proxy:3128
       https_proxy: http://proxy:3128
+      HOME: ${HOME:-/home/me}
     volumes:
       - nixStore:/nix
+      - homeVolume:${HOME:-/home/me}
       - type: volume
         source: fakeRootCA
         target: /usr/local/share/ca-certificates
@@ -55,7 +57,7 @@ services:
         condition: service_healthy
 volumes:
   fakeRootCA:
-
+  homeVolume:
   nixStore:
 
 networks:
