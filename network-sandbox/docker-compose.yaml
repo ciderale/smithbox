@@ -50,7 +50,7 @@ services:
 
   sandbox:
     build:
-      context: ../docker-devshell
+      dockerfile: Dockerfile.docker-devshell
     network_mode: service:dns-fw
     environment:
       HTTP_PROXY: http://proxy:3128

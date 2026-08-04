@@ -17,7 +17,7 @@ NEW_GID="$(id -g)"
 PROJECT_DIR=/project
 
 # Naming of the image
-: "${DOCKERFILE:=./Dockerfile}"
+: "${DOCKERFILE:=../network-sandbox/Dockerfile.docker-devshell}"
 IMAGE_NAME=docker-devshell
 TAG=$(sha256sum "$DOCKERFILE" | awk '{print $1}')
 IMAGE="$IMAGE_NAME:$TAG"
