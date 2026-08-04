@@ -3,8 +3,6 @@
 COMPOSE_ARGS=(
 		-f docker-compose.yaml
 		-f docker-compose.sandbox.yaml
-		-f docker-compose.mitm.yaml
-		#-f docker-compose.squid.yaml
 	)
 
 docker-compose() {

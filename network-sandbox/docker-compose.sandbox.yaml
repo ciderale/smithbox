@@ -6,7 +6,7 @@ services:
     environment:
       #HTTP_ALLOW_ALL: httpbin.org
       #HTTP_DENY_ALL: httpbin.org
-      HTTP_SAFE_METHODS: get post
+      HTTP_SAFE_METHODS: get
   sandbox:
     environment:
       UID: 501
