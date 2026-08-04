@@ -16,6 +16,8 @@ services:
       - ../:/project
     command: >
       sh -c "
+        nslookup asdf.com > /dev/null && echo OK || echo BAD should work
+        nslookup github.com > /dev/null && echo BAD should fail || echo OK
         echo '------------------- should succeed---------------------'
         curl --fail --silent https://httpbin.org/get || (echo 'ERROR should not fail'; exit 1)
         echo '------------------- should succeed---------------------'
