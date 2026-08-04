@@ -1,10 +1,20 @@
 #!/usr/bin/env bash
 
-trap 'docker compose down --timeout 0' EXIT KILL
+COMPOSE_ARGS=(
+		-f docker-compose.yaml
+		-f docker-compose.mitm.yaml
+		#-f docker-compose.squid.yaml
+	)
+
+docker-compose() {
+	docker compose "${COMPOSE_ARGS[@]}" "$@"
+}
+
+trap 'docker-compose down --timeout 0' EXIT KILL
 
 # rebuild images
-docker compose build -q &&
-	docker compose run --rm -ti sandbox sh
+docker-compose build -q &&
+	docker-compose run --rm -ti sandbox sh
 
 
 
