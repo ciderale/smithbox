@@ -42,6 +42,10 @@ sandbox configuration variables:
   HTTP_DENY_ALL    : deny all http(s) request to theses hosts
   HTTP_ALLOW_ALL   : allow any http(s) request to listed hosts
   HTTP_SAFE_METHODS: allow http(s) with these methods to any host
+  MODE             : how to enter the project environment
+                     - direnv (using .envrc from repository root)
+                     - nix-develop:name (use flake->devShell.\$name)
+                     - plain: do not enter a dev shell
 
 example docker-compose.configuration:
   services:
@@ -53,6 +57,9 @@ example docker-compose.configuration:
         HTTP_DENY_ALL: bad.com
         HTTP_ALLOW_ALL: my.web.com other.web.org
         HTTP_SAFE_METHODS: get head option
+    sandbox:
+      environemnt:
+        MODE: direnv
 EOF
   exit 1
 }
