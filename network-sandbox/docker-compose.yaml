@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: MIT
 
 services:
-  dns-fw:
+  firewall:
     build:
       dockerfile: Dockerfile.dnsmasq
     networks: [int]
@@ -38,7 +38,7 @@ services:
   sandbox:
     build:
       dockerfile: Dockerfile.docker-devshell
-    network_mode: service:dns-fw
+    network_mode: service:firewall
     environment:
       NAMESERVER: 127.0.0.1 #dnsmasq
       HTTP_PROXY: http://proxy:3128
@@ -55,7 +55,7 @@ services:
         volume:
           nocopy: true
     depends_on: # docker compose run automatically starts/stops dependent services
-      dns-fw:
+      firewall:
         condition: service_healthy
       proxy:
         condition: service_healthy
