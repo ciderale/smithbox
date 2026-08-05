@@ -13,8 +13,8 @@ services:
       HTTP_SAFE_METHODS: get
   sandbox:
     environment:
-      UID: 501
-      GID: 20
+      UID: ${UID}
+      GID: ${GID}
     working_dir: /project
     volumes:
       - ${PROJECT_ROOT:-$PWD}:/project
