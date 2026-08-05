@@ -27,9 +27,9 @@ table inet filter {
         # loopback
         oifname "lo" accept
 
-        # DNS to upstream resolvers
-        udp dport 53 accept
-        tcp dport 53 accept
+        # Docker DNS resolvers
+        ip daddr 127.0.0.11 udp dport 53 accept
+        ip daddr 127.0.0.11 tcp dport 53 accept
 
         # Proxy: handle all http/https traffic
         ip daddr @proxy_ip tcp dport 3128 counter accept
