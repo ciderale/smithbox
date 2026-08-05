@@ -1,0 +1,27 @@
+# SPDX-FileCopyrightText: 2026 Alain Lehmann
+#
+# SPDX-License-Identifier: MIT
+
+services:
+  firewall:
+    environment:
+      TCP_ALLOWED_HOSTS:
+  proxy:
+    environment:
+      HTTP_ALLOW_ALL: claude.ai console.anthropic.com platform.claude.com
+      HTTP_SAFE_METHODS: get
+  sandbox:
+    environment:
+      UID: ${UID}
+      GID: ${GID}
+    working_dir: /project
+    volumes:
+      - ${PROJECT_ROOT:-$PWD}:/project
+    command:
+      - sh
+      - -c
+      - |
+        echo Smithbox starting claude code
+        set -x
+        export NIXPKGS_ALLOW_UNFREE=1
+        exec nix run --impure 'nixpkgs#claude-code'
