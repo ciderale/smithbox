@@ -8,8 +8,8 @@ services:
       TCP_ALLOWED_HOSTS: asdf.com
   proxy:
     environment:
+      HTTP_DENY_ALL: google.ch
       #HTTP_ALLOW_ALL: httpbin.org
-      #HTTP_DENY_ALL: httpbin.org
       HTTP_SAFE_METHODS: get
   sandbox:
     environment:
