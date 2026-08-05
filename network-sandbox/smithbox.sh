@@ -7,12 +7,20 @@
 : "${DOCKER_BUILD_CONTEXT:=.}"
 COMPOSE_ARGS=(-f "$DOCKER_BUILD_CONTEXT/docker-compose.yaml")
 
+docker-compose() {
+	docker compose "${COMPOSE_ARGS[@]}" "$@"
+}
+
 PROJECT_ROOT=$(git rev-parse --show-toplevel 2>/dev/null || echo "$PWD")
 GID=$(id -g)
 export PROJECT_ROOT UID GID
 
 while [[ $# -gt 0 ]]; do
   case "${1:-}" in
+    reset-volumes)
+      docker-compose down --volumes
+      exit
+      ;;
     example|claude)
       COMPOSE_ARGS+=(-f "$DOCKER_BUILD_CONTEXT/docker-compose.$1.yaml")
       shift
@@ -31,10 +39,6 @@ while [[ $# -gt 0 ]]; do
       ;;
   esac
 done
-
-docker-compose() {
-	docker compose "${COMPOSE_ARGS[@]}" "$@"
-}
 
 trap 'docker-compose down --timeout 0' EXIT INT TERM HUP
 
