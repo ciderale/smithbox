@@ -14,6 +14,8 @@
     };
 in {
   treefmt.enable = true; # enable treefmt for formatting with multiple formatters
+  treefmt.pre-commit-hook = true;
+  treefmt.programs.alejandra.enable = true;
   treefmt.settings.formatter = {
     reuse = reuse {
       options = ["--skip-unrecognised"];
