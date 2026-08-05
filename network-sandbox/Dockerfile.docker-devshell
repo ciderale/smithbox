@@ -10,7 +10,7 @@ RUN curl -sSfL https://artifacts.nixos.org/nix-installer \
 ENV PATH=/nix/var/nix/profiles/default/bin:$PATH
 
 RUN nix profile add \
-        nixpkgs#direnv nixpkgs#nix-direnv nixpkgs#gosu \
+        nixpkgs#direnv nixpkgs#nix-direnv nixpkgs#gosu nixpkgs#bashInteractive \
     && nix store gc
 
 RUN cat <<'EOF' > /entrypoint.sh \
