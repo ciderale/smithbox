@@ -51,10 +51,6 @@ case $MODE in
 		;;
 esac
 
-workaround_macos_volume_mount_permission() {
-	sleep 1
-}
-
 ensure_store_permission() {
 	owner=$(stat -c '%u:%g' /nix)
 	if [ "$owner" != "$UID:$GID" ]; then
@@ -81,12 +77,16 @@ as_user() {
 	exec gosu $UID:$GID sh -c "
 		export HOME=$HOME
 		. /etc/profile.d/nix.sh;
+		# workaround_macos_volume_mount_permission
+		# - previous heuristic suggested 1s till permission okay
+		# - waiting before user changes seems to not have an impact
+		# - using ls on the folder seems to work too
+		ls -lah . >/dev/null # workaround of macosFile permissinos
 		$EXECUTOR
 	" sh "$@"
 }
 
 update-ca-certificates
-workaround_macos_volume_mount_permission
 ensure_resolv_conf
 ensure_home
 ensure_store_permission
