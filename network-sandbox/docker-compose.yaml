@@ -24,6 +24,9 @@ services:
     networks: [int]
     volumes:
       - fakeRootCA:/fakeRootCA:rw
+    environment:
+      RULE_FILES: "/mitm.rules.py"
+      WEB_PASSWORD: password
     ports:
       - 3128:3128
       - 8081:8081
