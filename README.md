@@ -11,6 +11,39 @@
 - `nix run github:ciderale/smithbox claude`
 	- mount current repository into sandbox
 	- start claude-code in the dev shell environement
+	- The corresponding docker-compose.yaml is shown below
+
+## Sample docker-compose configuration (claude)
+
+```yaml
+services:
+  firewall:
+    environment:
+      TCP_ALLOWED_HOSTS:
+  proxy:
+    environment:
+      HTTP_ALLOW_ALL: claude.ai console.anthropic.com platform.claude.com
+      HTTP_SAFE_METHODS: get
+  sandbox:
+    environment:
+      UID: ${UID}
+      GID: ${GID}
+    working_dir: /project
+    volumes:
+      - ${PROJECT_ROOT:-$PWD}:/project
+    command:
+      - sh
+      - -c
+      - |
+        echo Smithbox starting claude code
+        export NIXPKGS_ALLOW_UNFREE=1
+        exec nix run --impure 'nixpkgs#claude-code'
+```
+
+Note that firewall, proxy, and sandbox are services provided by smithbox
+to establish the tcp/http(s) sandboxing. The sandbox workload runs in the
+sandbox service. Hence most project specific configuration (except for the
+sandboxing params) apply to the sandbox service.
 
 ## setup based on docker container
 
