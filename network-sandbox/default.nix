@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2026 Alain Lehmann
+#
+# SPDX-License-Identifier: MIT
+
 {pkgs, ...}: {
   packages.smithbox = pkgs.writeShellApplication {
     name = "smithbox";

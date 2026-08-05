@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
 
+# SPDX-FileCopyrightText: 2026 Alain Lehmann
+#
+# SPDX-License-Identifier: MIT
+
 : "${DOCKER_BUILD_CONTEXT:=.}"
 COMPOSE_ARGS=(
     -f "$DOCKER_BUILD_CONTEXT/docker-compose.yaml"
