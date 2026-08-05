@@ -1,5 +1,17 @@
 # Sandboxing experiments
 
+## Run a sandbox for your project nix/direnv environment
+
+- `nix run github:ciderale/smithbox`
+	- Show detailed usage
+	- Specifically: show HTTP(s)/TCP sandbox configuration params
+- `nix run github:ciderale/smithbox docker-compose.yaml bash`
+	- Apply docker-compose.yaml for additional sandbox container config
+	- Run bash in the sandbox in a direnv environment
+- `nix run github:ciderale/smithbox claude`
+	- mount current repository into sandbox
+	- start claude-code in the dev shell environement
+
 ## setup based on docker container
 
 General idea:
