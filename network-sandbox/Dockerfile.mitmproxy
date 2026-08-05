@@ -42,7 +42,7 @@ def env_set(name: str) -> set[str]:
 
 DENY = env_set("HTTP_DENY_ALL")
 ALLOW = env_set("HTTP_ALLOW_ALL")
-SAFE_METHODS = env_set("HTTP_SAFE_METHODS") or {"get"}
+SAFE_METHODS = env_set("HTTP_SAFE_METHODS")
 
 ctx.log.info(f"Allow all: {ALLOW}")
 ctx.log.info(f"Deny all: {DENY}")
