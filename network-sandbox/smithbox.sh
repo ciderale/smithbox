@@ -19,7 +19,7 @@ Smithbox: (docker-)sandboxed nix environment
   docker-compose.yaml files. They are merged using
   sensible docker-compose yaml merging rules.
 
-usage $(basename $0) [compose-file*] [command*]
+usage $(basename "$0") [compose-file*] [command*]
 
   the first argument which does not qualify as
   docker-compose file (see below) and everything
