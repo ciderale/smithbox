@@ -13,8 +13,8 @@ export PROJECT_ROOT UID GID
 
 while [[ $# -gt 0 ]]; do
   case "${1:-}" in
-    claude)
-      COMPOSE_ARGS+=(-f "$DOCKER_BUILD_CONTEXT/docker-compose.claude.yaml")
+    example|claude)
+      COMPOSE_ARGS+=(-f "$DOCKER_BUILD_CONTEXT/docker-compose.$1.yaml")
       shift
       ;;
     -f)

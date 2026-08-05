@@ -22,6 +22,5 @@ services:
       - -c
       - |
         echo Smithbox starting claude code
-        set -x
         export NIXPKGS_ALLOW_UNFREE=1
         exec nix run --impure 'nixpkgs#claude-code'
