@@ -13,6 +13,19 @@ RUN nix profile add \
         nixpkgs#direnv nixpkgs#nix-direnv nixpkgs#gosu nixpkgs#bashInteractive \
     && nix store gc
 
+RUN cat <<'EOF' > /.direnvrc
+: "${XDG_CACHE_HOME:="${HOME}/.cache"}"
+declare -A direnv_layout_dirs
+direnv_layout_dir() {
+    local hash path
+    echo "${direnv_layout_dirs[$PWD]:=$(
+        hash="$(sha1sum - <<< "$PWD" | head -c40)"
+        path="${PWD//[^a-zA-Z0-9]/-}"
+        echo "${XDG_CACHE_HOME}/direnv/layouts/${hash}${path}"
+    )}"
+}
+EOF
+
 RUN cat <<'EOF' > /entrypoint.sh \
     && chmod +x /entrypoint.sh
 #!/usr/bin/env sh
@@ -51,9 +64,10 @@ ensure_store_permission() {
 }
 
 ensure_home() {
-	mkdir -p $HOME
 	mkdir -p $HOME/.local/state/nix/profiles
 	ln -fs /nix/var/nix/profiles/per-user/root/profile $HOME/.nix-profile
+	mkdir -p $HOME/.config/direnv
+	cp /.direnvrc $HOME/.config/direnv/direnvrc
 	chown -R $UID:$GID $HOME
 }
 
