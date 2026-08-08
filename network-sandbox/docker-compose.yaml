@@ -41,6 +41,12 @@ services:
   sandbox:
     build:
       dockerfile: Dockerfile.docker-devshell
+      args:
+        NIX_EXTRA_CONF: |
+          tarball-ttl = 86400
+          max-jobs = auto
+          cores = 0
+          http-connections = 49
     network_mode: service:firewall
     environment:
       NAMESERVER: 127.0.0.1 #dnsmasq
