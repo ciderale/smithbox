@@ -4,9 +4,19 @@
 
 FROM alpine
 
+ARG NIX_EXTRA_CONF="\
+tarball-ttl = 86400\n\
+max-jobs = auto\n\
+cores = 0\n\
+http-connections = 50\n\
+"
+
 RUN apk add --no-cache curl ca-certificates
 RUN curl -sSfL https://artifacts.nixos.org/nix-installer \
-			| sh -s -- install linux --init none --enable-flakes --no-confirm
+			| sh -s -- install linux \
+					--extra-conf "$(echo "$NIX_EXTRA_CONF" | sed -e 's/\\n/\n/g')" \
+					--init none --enable-flakes --no-confirm
+
 ENV PATH=/nix/var/nix/profiles/default/bin:$PATH
 
 RUN nix profile add \
