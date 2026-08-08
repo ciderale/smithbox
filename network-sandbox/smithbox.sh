@@ -103,6 +103,6 @@ done
 trap 'docker-compose down --timeout 0' EXIT INT TERM HUP
 
 # rebuild images
-echo "building images (may take a while)" && docker-compose build -q
+echo "building docker images (may take a while)" && docker-compose build -q
 docker-compose run --rm -ti sandbox "$@"
 
