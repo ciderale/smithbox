@@ -85,8 +85,9 @@ as_user() {
 		# workaround_macos_volume_mount_permission
 		# - previous heuristic suggested 1s till permission okay
 		# - waiting before user changes seems to not have an impact
-		# - using ls on the folder seems to work too
-		ls -lah . >/dev/null # workaround of macosFile permissinos
+		# - enumerating directory content (e.g. ls . or glob ./*) works too
+		# https://github.com/lima-vm/lima/issues/4053#issuecomment-5272996309
+		: ./* # workaround of macosFile permissinos
 		$EXECUTOR
 	" sh "$@"
 }
