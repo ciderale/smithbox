@@ -36,7 +36,6 @@ RUN cat <<'EOF' > /entrypoint.sh \
 #!/usr/bin/env sh
 
 HOME=${HOME:-/home/me}
-UID=${UID:-1000}
 GID=${GID:-1000}
 MODE=${MODE:-direnv}
 
