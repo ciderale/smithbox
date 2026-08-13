@@ -9,28 +9,66 @@ services:
   proxy:
     environment:
       HTTP_DENY_ALL: google.ch
-      #HTTP_ALLOW_ALL: httpbin.org
+      #HTTP_ALLOW_ALL: httpbingo.org
       HTTP_SAFE_METHODS: get
   sandbox:
     environment:
       UID: ${UID}
       GID: ${GID}
-        #MODE: nix-develop:default
-    working_dir: /project
-    volumes:
-      - ${PROJECT_ROOT:-$PWD}:/project
-    command: >
-      sh -c "
-        nslookup asdf.com > /dev/null && echo OK || echo BAD should work
-        nslookup github.com > /dev/null && echo BAD should fail || echo OK
-        echo '------------------- should succeed---------------------'
-        curl --fail --silent https://httpbin.org/get || (echo 'ERROR should not fail'; exit 1)
-        echo '------------------- should succeed---------------------'
-        curl --fail --silent http://httpbin.org/get || (echo 'ERROR should not fail'; exit 2)
-        wait
-        echo '------------------- should fail -----------------------'
-        curl --fail --silent https://httpbin.org/post -d 'asdf' && exit 3 || echo 'expected to fail'
-        echo '------------------- should fail -----------------------'
-        curl --fail --silent http://httpbin.org/post -d 'asdf' && exit 4 || echo 'expected to fail'
-        wait
-      "
+      MODE: plain
+      #MODE: nix-develop:default
+    #working_dir: /project
+    #volumes:
+    #  - ${PROJECT_ROOT:-$PWD}:/project
+    command:
+      - sh
+      - -c
+      - |
+        failed=()
+
+        final_report() {
+          if (($${#failed[@]})); then
+            printf '\nFailures:\n'
+            printf '  %s\n' "$${failed[@]}"
+            exit 1
+          fi
+        }
+
+        check() {
+          local expected=$$1
+          shift
+
+          "$$@" >/dev/null 2>&1
+          local rc=$$?
+
+          if [ "$$rc" -eq 0 ]; then
+            actual=allow
+          else
+            actual=block
+          fi
+
+          if [ "$$actual" = "$$expected" ]; then
+            color='\033[32m'
+            status=PASS
+          else
+            color='\033[31m'
+            status=FAIL
+            failures+=($$*)
+            failed+=("$$expected $$* (rc=$$rc, got $$actual)")
+          fi
+
+
+          printf "$${color}%-4s\033[0m (rc=%3d): expected %-7s %s\n" \
+            "$$status" "$$rc" "$$expected" "$$*"
+
+        }
+
+        check allow nslookup asdf.com
+        check block nslookup github.com
+
+        check allow curl --fail --silent https://httpbingo.org/get
+        check allow curl --fail --silent http://httpbingo.org/get
+        check block curl --fail --silent https://httpbingo.org/post -d 'foo'
+        check block curl --fail --silent http://httpbingo.org/post -d 'foo'
+
+        final_report
