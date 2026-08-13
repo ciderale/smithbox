@@ -13,13 +13,10 @@ services:
       HTTP_SAFE_METHODS: get
   sandbox:
     environment:
-      UID: ${UID}
-      GID: ${GID}
       MODE: plain
       #MODE: nix-develop:default
-    #working_dir: /project
-    #volumes:
-    #  - ${PROJECT_ROOT:-$PWD}:/project
+      UID: ${UID}
+      GID: ${GID}
     command:
       - sh
       - -c
