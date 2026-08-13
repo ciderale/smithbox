@@ -13,6 +13,7 @@
       options = ["annotate" "--license" "MIT" "--copyright" "Alain Lehmann"] ++ options;
     };
 in {
+  git.root.enable = true;
   treefmt.enable = true; # enable treefmt for formatting with multiple formatters
   treefmt.pre-commit-hook = true;
   treefmt.programs.alejandra.enable = true;
@@ -39,4 +40,7 @@ in {
     pkgs.curl
     pkgs.git # workaround in nix-shell-parts that implicitly depends on git
   ];
+  scripts.test-smithbox.text = ''
+    "$_GIT_ROOT"/network-sandbox/smithbox.sh example && echo "ALL GOOD" || echo "FAILED"
+  '';
 }
