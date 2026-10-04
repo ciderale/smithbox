@@ -20,6 +20,7 @@ services:
   firewall:
     environment:
       TCP_ALLOWED_HOSTS:
+      LOCALHOST_PORTS: 5432
   proxy:
     environment:
       HTTP_ALLOW_ALL: claude.ai console.anthropic.com platform.claude.com

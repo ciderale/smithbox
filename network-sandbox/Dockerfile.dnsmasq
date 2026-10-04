@@ -8,6 +8,24 @@ RUN apt-get update && \
     apt-get install -y dnsmasq nftables iproute2 dnsutils
 
 RUN cat <<'EOF' > /nftables.conf
+define HOSTGATEWAY = @HOSTGATEWAY@
+table ip localhost_ports_nat {
+    set localhost_ports {
+        type inet_service
+        # elements = { port1, port2, etc }
+    }
+    chain output {
+        type nat hook output priority -100;
+        ip daddr 127.0.0.1 tcp dport @localhost_ports counter \
+           dnat to $HOSTGATEWAY
+    }
+    chain postrouting {
+        type nat hook postrouting priority 100;
+        ip daddr $HOSTGATEWAY tcp dport @localhost_ports counter \
+           masquerade
+    }
+}
+
 table inet filter {
 
     set allow_dst {
@@ -79,13 +97,24 @@ RUN cat <<'EOF' > /entrypoint.sh \
 #!/usr/bin/env bash
 set -eu
 
-echo "network namespace hardening"
+echo "### inspect network namespace"
 ip addr
 nft list ruleset
-nft -f /nftables.conf
+
+echo "### network namespace hardening"
+HOSTGATEWAY=$(getent hosts host.docker.internal | awk '{print $1}')
+echo "HOSTGATEWAY=$HOSTGATEWAY"
+sed -e "s/@HOSTGATEWAY@/$HOSTGATEWAY/g" /nftables.conf | nft -f -
+
+nft flush set ip localhost_ports_nat localhost_ports
+if [ -n "${LOCALHOST_PORTS:-}" ]; then
+    nft add element ip localhost_ports_nat localhost_ports "{ $LOCALHOST_PORTS }"
+fi
+
+echo "### inspect network namespace"
 nft list ruleset
 
-echo "generate tcp_allowed rules"
+echo "### generate tcp_allowed rules"
 for host in ${TCP_ALLOWED_HOSTS:-}; do
   echo "server=/$host/127.0.0.11"
 done >/etc/dnsmasq.tcp_allowed.conf

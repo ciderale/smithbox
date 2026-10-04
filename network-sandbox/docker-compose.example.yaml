@@ -6,12 +6,20 @@ services:
   firewall:
     environment:
       TCP_ALLOWED_HOSTS: asdf.com
+      LOCALHOST_PORTS: 9991
   proxy:
     environment:
       HTTP_DENY_ALL: google.ch
       #HTTP_ALLOW_ALL: httpbingo.org
       HTTP_SAFE_METHODS: get
+  hostservice1:
+    image: traefik/whoami
+    ports: [9991:80]
+  hostservice2:
+    image: traefik/whoami
+    ports: [9992:80]
   sandbox:
+    depends_on: [hostservice1, hostservice2]
     environment:
       MODE: plain
       #MODE: nix-develop:default
@@ -67,5 +75,7 @@ services:
         check allow curl --fail --silent http://httpbingo.org/get
         check block curl --fail --silent https://httpbingo.org/post -d 'foo'
         check block curl --fail --silent http://httpbingo.org/post -d 'foo'
+        check allow curl --fail --silent http://localhost:9991/hello
+        check block curl --fail --silent http://localhost:9992/hello
 
         final_report

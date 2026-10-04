@@ -39,6 +39,7 @@ maintenance command:
 
 sandbox configuration variables:
   TCP_ALLOWED_HOSTS: allow arbitrary tcp connection to those hosts
+  LOCALHOST_PORTS  : localhost ports to expose/forward into the sandbox
   HTTP_DENY_ALL    : deny all http(s) request to theses hosts
   HTTP_ALLOW_ALL   : allow any http(s) request to listed hosts
   HTTP_SAFE_METHODS: allow http(s) with these methods to any host
@@ -52,6 +53,7 @@ example docker-compose.configuration:
     firewall:
       environemnt:
         TCP_ALLOWED_HOSTS: asdf.com jkl.com
+        LOCALHOST_PORTS: 5432,9000
     proxy:
       environemnt:
         HTTP_DENY_ALL: bad.com
