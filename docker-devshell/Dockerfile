@@ -4,7 +4,7 @@
 
 FROM alpine
 
-RUN apk add --no-cache curl ca-certificates
+RUN apk add --no-cache curl ca-certificates java-cacerts
 RUN curl -sSfL https://artifacts.nixos.org/nix-installer \
 			| sh -s -- install linux --init none --enable-flakes --no-confirm
 ENV PATH=/nix/var/nix/profiles/default/bin:$PATH

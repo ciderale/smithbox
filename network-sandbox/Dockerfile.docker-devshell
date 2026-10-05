@@ -6,7 +6,7 @@ FROM alpine
 
 ARG NIX_EXTRA_CONF=""
 
-RUN apk add --no-cache curl ca-certificates
+RUN apk add --no-cache curl ca-certificates java-cacerts
 RUN curl -sSfL https://artifacts.nixos.org/nix-installer \
 			| sh -s -- install linux \
 					--extra-conf "$NIX_EXTRA_CONF" \
