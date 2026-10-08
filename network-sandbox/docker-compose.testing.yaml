@@ -13,6 +13,15 @@ services:
       HTTP_DENY_ALL: google.ch
       #HTTP_ALLOW_ALL: httpbingo.org
       HTTP_SAFE_METHODS: get
+      AUTH_CONFIG: |
+        rules:
+          - match:
+              host: httpbingo.org
+            auth:
+              scheme: bearer
+              secret: demo_api_token
+    secrets:
+      - demo_api_token
   hostservice1:
     image: traefik/whoami
     ports: [9991:80]
@@ -69,6 +78,10 @@ services:
 
         }
 
+        assertAuth() {
+          curl --fail --silent $$1 | grep "$$2"
+        }
+
         check allow nslookup asdf.com
         check block nslookup github.com
 
@@ -78,6 +91,9 @@ services:
         check block curl --fail --silent http://httpbingo.org/post -d 'foo'
         check allow curl --fail --silent http://localhost:9991/hello
         check block curl --fail --silent http://localhost:9992/hello
+        # assume calling with FOO=hello (allow=success; block=failed)
+        check allow assertAuth https://httpbingo.org/headers "Bearer s3cr3t"
+        check block assertAuth https://httpbingo.org/headers "Bearer wrong"
 
 
         if [ -n "$$JAVA_TOOL_OPTIONS" ]; then
@@ -95,3 +111,7 @@ services:
         fi
 
         final_report
+
+secrets:
+  demo_api_token:
+    environment: DEMO_API_TOKEN

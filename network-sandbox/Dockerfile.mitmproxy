@@ -82,4 +82,66 @@ def request(flow: http.HTTPFlow):
         deny()
 EOF
 
+RUN cat <<'EOF' > /mitm.auth.py
+import os
+from pathlib import Path
+
+import yaml
+from mitmproxy import http
+
+
+def make_matcher(match):
+    host = match["host"].lower()
+    port = match.get("port")
+
+    def matcher(flow):
+        return (
+            flow.request.host.lower() == host
+            and (port is None or flow.request.port == port)
+        )
+
+    return matcher
+
+
+def make_applyauth(auth):
+    secret = Path("/run/secrets", auth["secret"]).read_text().strip()
+
+    if auth["scheme"] == "bearer":
+        value = f"Bearer {secret}"
+    elif auth["scheme"] == "basic":
+        value = f"{secret}"
+    else:
+        raise ValueError(f"Unknown auth scheme: {auth['scheme']}")
+
+    def applyauth(flow):
+        flow.request.headers["Authorization"] = value
+
+    return applyauth
+
+
+def load_auth():
+    config = yaml.safe_load(os.environ.get("AUTH_CONFIG", "rules: []"))
+
+    return [
+        {
+            "matcher": make_matcher(rule["match"]),
+            "applyauth": make_applyauth(rule["auth"]),
+        }
+        for rule in config["rules"]
+    ]
+
+
+RULES = load_auth()
+
+
+def request(flow: http.HTTPFlow):
+    for rule in RULES:
+        if rule["matcher"](flow):
+            rule["applyauth"](flow)
+            return
+
+EOF
+
+RUN pip install --no-cache-dir PyYAML
+
 ENTRYPOINT [ "/entrypoint.sh" ]

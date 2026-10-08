@@ -29,7 +29,7 @@ services:
     volumes:
       - proxy-ca:/proxy-ca:rw
     environment:
-      RULE_FILES: "/mitm.rules.py"
+      RULE_FILES: "/mitm.rules.py /mitm.auth.py"
     healthcheck:
       test: ["CMD", "python", "-c", "import socket;socket.create_connection(('127.0.0.1',3128),2).close()"]
       interval: 30s
