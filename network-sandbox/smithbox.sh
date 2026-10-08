@@ -80,6 +80,10 @@ while [[ $# -gt 0 ]]; do
     --help)
       usage
       ;;
+    shutdown)
+      docker-compose down --timeout 0
+      exit
+      ;;
     reset-volumes)
       docker-compose down --volumes
       exit
@@ -102,7 +106,20 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
-trap 'docker-compose down --timeout 0' EXIT INT TERM HUP
+function cleanup() {
+  project=$(docker-compose config --format json | jq -r '.name')
+  if docker ps -q \
+      --filter "label=com.docker.compose.project=$project" \
+      --filter "label=com.docker.compose.service=sandbox" |
+      grep -q .; then
+      echo "keep environemnt running due to active sandboxes"
+  else
+      echo "no more sandbox running. shutting down"
+      $0 "${COMPOSE_ARGS[@]}" shutdown
+  fi
+}
+
+trap cleanup EXIT INT TERM HUP
 
 # rebuild images
 echo "building docker images (may take a while)" && docker-compose build -q
