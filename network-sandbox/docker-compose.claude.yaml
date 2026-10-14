@@ -6,18 +6,19 @@ services:
   firewall:
     environment:
       TCP_ALLOWED_HOSTS:
+      LOCALHOST_PORTS:
   proxy:
     environment:
+      HTTP_SAFE_METHODS: get head
       HTTP_ALLOW_ALL: claude.ai console.anthropic.com platform.claude.com
-      HTTP_SAFE_METHODS: get
   sandbox:
     environment:
       UID: ${UID}
       GID: ${GID}
       DISABLE_TELEMETRY: 1
-    working_dir: /project
+    working_dir: ${PROJECT_ROOT:-$PWD}
     volumes:
-      - ${PROJECT_ROOT:-$PWD}:/project
+      - ${PROJECT_ROOT:-$PWD}:${PROJECT_ROOT:-$PWD}
     command:
       - sh
       - -c
