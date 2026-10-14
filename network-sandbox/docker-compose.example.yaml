@@ -78,4 +78,19 @@ services:
         check allow curl --fail --silent http://localhost:9991/hello
         check block curl --fail --silent http://localhost:9992/hello
 
+
+        if [ -n "$$JAVA_TOOL_OPTIONS" ]; then
+          echo "testing jvm proxy usage"
+          nix shell nixpkgs#jdk --command jshell - <<'EOF' | grep SUCCESS || failed+=("jvm call test")
+          try {
+              var url = new java.net.URL("https://example.com");
+              var conn = (java.net.HttpURLConnection) url.openConnection();
+              System.out.println(conn.getResponseCode());
+              System.out.println("SUCCESS");
+          } catch (Exception e) {
+              System.out.println("FAILED");
+          }
+        EOF
+        fi
+
         final_report
