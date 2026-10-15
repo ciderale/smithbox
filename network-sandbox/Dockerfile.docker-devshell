@@ -44,7 +44,7 @@ case $MODE in
 		EXECUTOR='direnv allow && exec direnv exec . "${@}"'
 		;;
 	nix-develop*)
-		EXECUTOR='exec nix develop --no-warn-dirty "${MODE/nix-develop:/.#}" --command "${@}"'
+		EXECUTOR='exec nix develop --no-warn-dirty "${MODE/nix-develop:/.#}" --command sh -c "cd $PWD; ${@}"'
 		;;
 	plain)
 		EXECUTOR='exec "${@}"'
