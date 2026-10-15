@@ -49,6 +49,10 @@ sandbox configuration variables:
                      - nix-develop:name (use flake->devShell.\$name)
                      - plain: do not enter a dev shell
 
+environment variables available in docker compose
+  UID,GID       : user & group id of current user
+  PROJECT_ROOT  : git root directory currently in
+
 example docker-compose.configuration:
   services:
     firewall:
