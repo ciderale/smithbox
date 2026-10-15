@@ -7,7 +7,7 @@ services:
       UID: $UID
       GID: $GID
       HOME: $HOME
-      MODE: direnv
+      MODE: nix-develop:default
     working_dir: $PWD
     volumes:
       - $PROJECT_ROOT:$PROJECT_ROOT
