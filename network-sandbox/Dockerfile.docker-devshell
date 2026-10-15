@@ -37,7 +37,7 @@ RUN cat <<'EOF' > /entrypoint.sh \
 
 HOME=${HOME:-/home/me}
 GID=${GID:-1000}
-MODE=${MODE:-direnv}
+MODE=${MODE:-plain}
 
 case $MODE in
 	direnv)
