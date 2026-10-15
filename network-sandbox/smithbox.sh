@@ -33,6 +33,9 @@ treated as docker-compose files:
 smithbox provides some sample docker-compose.yaml configuations:
   claude       : mounts current repo and run 'nixpks#claude-code'
   jvmproxy     : set JAVA_TOOL_OPTIONS for proxy
+  project      : set UID/GID/HOME to current user
+                 allow HTTP GET&HEAD
+                 mount current git project
   example      : runs some sandbox testing nslookup/curl requests
 
 maintenance command:
@@ -93,7 +96,7 @@ while [[ $# -gt 0 ]]; do
       docker-compose down --volumes
       exit
       ;;
-    example|claude|jvmproxy)
+    example|claude|jvmproxy|project)
       COMPOSE_ARGS+=(-f "$DOCKER_BUILD_CONTEXT/docker-compose.$1.yaml")
       shift
       ;;
