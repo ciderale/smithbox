@@ -31,7 +31,7 @@ treated as docker-compose files:
   -f <file>    : explicitly listed (possibly non-yaml) file
 
 smithbox provides some sample docker-compose.yaml configuations:
-  claude       : mounts current repo and run 'nixpks#claude-code'
+  claude       : run 'nixpks#claude-code' with DISABLE_TELEMETRY
   jvmproxy     : set JAVA_TOOL_OPTIONS for proxy
   project      : set UID/GID/HOME to current user
                  allow HTTP GET&HEAD

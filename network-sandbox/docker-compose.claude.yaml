@@ -13,16 +13,10 @@ services:
       HTTP_ALLOW_ALL: claude.ai console.anthropic.com platform.claude.com
   sandbox:
     environment:
-      UID: ${UID}
-      GID: ${GID}
       DISABLE_TELEMETRY: 1
-    working_dir: ${PROJECT_ROOT:-$PWD}
-    volumes:
-      - ${PROJECT_ROOT:-$PWD}:${PROJECT_ROOT:-$PWD}
     command:
       - sh
       - -c
       - |
-        echo Smithbox starting claude code
-        export NIXPKGS_ALLOW_UNFREE=1
-        exec nix run --impure 'nixpkgs#claude-code'
+        echo "Smithbox starting claude code"
+        NIXPKGS_ALLOW_UNFREE=1 exec nix run --impure 'nixpkgs#claude-code'
