@@ -1,7 +1,6 @@
 # SPDX-FileCopyrightText: 2026 Alain Lehmann
 #
 # SPDX-License-Identifier: MIT
-
 {
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
