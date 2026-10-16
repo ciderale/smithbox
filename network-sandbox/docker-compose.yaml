@@ -28,7 +28,7 @@ services:
       dockerfile: Dockerfile.mitmproxy
     networks: [int]
     volumes:
-      - fakeRootCA:/fakeRootCA:rw
+      - proxy-ca:/proxy-ca:rw
     environment:
       RULE_FILES: "/mitm.rules.py"
       WEB_PASSWORD: password
@@ -66,7 +66,7 @@ services:
       - nixStore:/nix
       - homeVolume:${HOME:-/home/me}
       - type: volume
-        source: fakeRootCA
+        source: proxy-ca
         target: /usr/local/share/ca-certificates
         volume:
           nocopy: true
@@ -76,7 +76,7 @@ services:
       proxy:
         condition: service_healthy
 volumes:
-  fakeRootCA:
+  proxy-ca:
   homeVolume:
   nixStore:
 
