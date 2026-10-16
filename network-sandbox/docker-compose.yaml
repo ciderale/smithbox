@@ -78,7 +78,9 @@ services:
 volumes:
   proxy-ca:
   homeVolume:
+    name: ${SMITHBOX_VOLUME_PREFIX:-smithbox-global}-home
   nixStore:
+    name: ${SMITHBOX_VOLUME_PREFIX:-smithbox-global}-nix-store
 
 networks:
   int:
