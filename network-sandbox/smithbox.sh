@@ -79,9 +79,9 @@ if [ $# = 0 ]; then
 fi
 
 PROJECT_ROOT=$(git rev-parse --show-toplevel 2>/dev/null || echo "$PWD")
+PROJECT_NAME=$(basename "$PROJECT_ROOT")
 GID=$(id -g)
-export PROJECT_ROOT UID GID
-
+export PROJECT_ROOT PROJECT_NAME UID GID
 
 while [[ $# -gt 0 ]]; do
   case "${1:-}" in

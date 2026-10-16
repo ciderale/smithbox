@@ -2,6 +2,8 @@
 #
 # SPDX-License-Identifier: MIT
 
+name: $PROJECT_NAME
+
 services:
   firewall:
     build:
