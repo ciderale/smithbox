@@ -10,7 +10,7 @@ services:
   proxy:
     environment:
       HTTP_SAFE_METHODS: get head
-      HTTP_ALLOW_ALL: claude.ai console.anthropic.com platform.claude.com
+      HTTP_ALLOW_ALL: claude.ai api.anthropic.com platform.claude.com
   sandbox:
     environment:
       DISABLE_TELEMETRY: 1
