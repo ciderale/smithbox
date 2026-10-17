@@ -5,10 +5,7 @@
 # SPDX-License-Identifier: MIT
 
 : "${DOCKER_BUILD_CONTEXT:=.}"
-COMPOSE_ARGS=(
-  -f "$DOCKER_BUILD_CONTEXT/docker-compose.base.yaml"
-  -f "$DOCKER_BUILD_CONTEXT/docker-compose.yaml"
-)
+COMPOSE_ARGS=(-f "$DOCKER_BUILD_CONTEXT/docker-compose.base.yaml")
 
 docker-compose() {
 	docker compose "${COMPOSE_ARGS[@]}" "$@"
@@ -34,11 +31,12 @@ treated as docker-compose files:
   -f <file>    : explicitly listed (possibly non-yaml) file
 
 smithbox provides some sample docker-compose.yaml configuations:
-  claude       : run 'nixpks#claude-code' with DISABLE_TELEMETRY
+  sandbox      : the actual smithbox dns/https/proxy sandbox
+  testing      : runs some sandbox testing nslookup/curl requests
   project      : set UID/GID/HOME to current user
                  allow HTTP GET&HEAD
                  mount current git project
-  example      : runs some sandbox testing nslookup/curl requests
+  claude       : run 'nixpks#claude-code' with DISABLE_TELEMETRY
 
 maintenance command:
   reset-volumes: deletes the sandbox nix store & home volumes
@@ -98,7 +96,7 @@ while [[ $# -gt 0 ]]; do
       docker-compose down --volumes
       exit
       ;;
-    example|claude|project)
+    sandbox|testing|project|claude)
       COMPOSE_ARGS+=(-f "$DOCKER_BUILD_CONTEXT/docker-compose.$1.yaml")
       shift
       ;;

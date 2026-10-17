@@ -41,6 +41,6 @@ in {
     pkgs.git # workaround in nix-shell-parts that implicitly depends on git
   ];
   scripts.test-smithbox.text = ''
-    "$_GIT_ROOT"/network-sandbox/smithbox.sh example && echo "ALL GOOD" || echo "FAILED"
+    "$_GIT_ROOT"/network-sandbox/smithbox.sh sandbox testing && echo "ALL GOOD" || echo "FAILED"
   '';
 }
