@@ -5,7 +5,10 @@
 # SPDX-License-Identifier: MIT
 
 : "${DOCKER_BUILD_CONTEXT:=.}"
-COMPOSE_ARGS=(-f "$DOCKER_BUILD_CONTEXT/docker-compose.yaml")
+COMPOSE_ARGS=(
+  -f "$DOCKER_BUILD_CONTEXT/docker-compose.base.yaml"
+  -f "$DOCKER_BUILD_CONTEXT/docker-compose.yaml"
+)
 
 docker-compose() {
 	docker compose "${COMPOSE_ARGS[@]}" "$@"

@@ -44,20 +44,8 @@ services:
       start_interval: 0.5s
 
   sandbox:
-    build:
-      dockerfile: Dockerfile.docker-devshell
-      args:
-        NIX_EXTRA_CONF: |
-          tarball-ttl = 86400
-          max-jobs = auto
-          cores = 0
-          http-connections = 49
     network_mode: service:firewall
     environment:
-      MODE: plain
-      UID: ${UID}
-      GID: ${GID}
-      HOME: ${HOME}
       NAMESERVER: 127.0.0.1 #dnsmasq
       HTTP_PROXY: http://proxy:3128
       HTTPS_PROXY: http://proxy:3128
@@ -66,8 +54,6 @@ services:
       NO_PROXY: localhost,127.0.0.1
       no_proxy: localhost,127.0.0.1
     volumes:
-      - nixStore:/nix
-      - homeVolume:${HOME}
       - type: volume
         source: proxy-ca
         target: /usr/local/share/ca-certificates
@@ -80,10 +66,6 @@ services:
         condition: service_healthy
 volumes:
   proxy-ca:
-  homeVolume:
-    name: ${SMITHBOX_VOLUME_PREFIX:-smithbox-global}-home
-  nixStore:
-    name: ${SMITHBOX_VOLUME_PREFIX:-smithbox-global}-nix-store
 
 networks:
   int:

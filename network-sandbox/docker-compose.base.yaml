@@ -1,0 +1,27 @@
+# SPDX-FileCopyrightText: 2026 Alain Lehmann
+#
+# SPDX-License-Identifier: MIT
+services:
+  sandbox:
+    build:
+      dockerfile: Dockerfile.docker-devshell
+      args:
+        NIX_EXTRA_CONF: |
+          tarball-ttl = 86400
+          max-jobs = auto
+          cores = 0
+          http-connections = 49
+    environment:
+      MODE: plain
+      UID: ${UID}
+      GID: ${GID}
+      HOME: ${HOME}
+    volumes:
+      - nixStore:/nix
+      - homeVolume:${HOME}
+    working_dir: ${HOME} # safe to override
+volumes:
+  homeVolume:
+    name: ${SMITHBOX_VOLUME_PREFIX:-smithbox-global}-home
+  nixStore:
+    name: ${SMITHBOX_VOLUME_PREFIX:-smithbox-global}-nix-store

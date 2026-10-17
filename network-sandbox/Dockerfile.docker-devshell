@@ -79,7 +79,7 @@ ensure_home() {
 }
 
 ensure_resolv_conf() {
-	if [ -n "$NAMESERVER" ]; then
+	if [ -n "${NAMESERVER:-}" ]; then
 		echo "nameserver $NAMESERVER" > /etc/resolv.conf
 	fi
 }
