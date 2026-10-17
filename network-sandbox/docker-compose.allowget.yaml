@@ -1,0 +1,8 @@
+# SPDX-FileCopyrightText: 2026 Alain Lehmann
+#
+# SPDX-License-Identifier: MIT
+
+services:
+  proxy:
+    environment:
+      HTTP_SAFE_METHODS: get head

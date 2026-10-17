@@ -31,12 +31,14 @@ treated as docker-compose files:
   -f <file>    : explicitly listed (possibly non-yaml) file
 
 smithbox provides some sample docker-compose.yaml configuations:
+  base         : set UID/GID/HOME to current user (allways enabled)
+  project      : mount current git project
+
   sandbox      : the actual smithbox dns/https/proxy sandbox
-  testing      : runs some sandbox testing nslookup/curl requests
-  project      : set UID/GID/HOME to current user
-                 allow HTTP GET&HEAD
-                 mount current git project
+  allowget     : allow HTTP GET&HEAD, but not POST/etc.
   claude       : run 'nixpks#claude-code' with DISABLE_TELEMETRY
+
+  testing      : runs some sandbox testing nslookup/curl requests
 
 maintenance command:
   reset-volumes: deletes the sandbox nix store & home volumes
@@ -55,6 +57,7 @@ sandbox configuration variables:
 environment variables available in docker compose
   UID,GID       : user & group id of current user
   PROJECT_ROOT  : git root directory currently in
+  PROJECT_NAME  : name of the git root directory
 
 example docker-compose.configuration:
   services:
@@ -96,7 +99,7 @@ while [[ $# -gt 0 ]]; do
       docker-compose down --volumes
       exit
       ;;
-    sandbox|testing|project|claude)
+    project|sandbox|allowget|claude|testing)
       COMPOSE_ARGS+=(-f "$DOCKER_BUILD_CONTEXT/docker-compose.$1.yaml")
       shift
       ;;
