@@ -54,6 +54,10 @@ services:
           http-connections = 49
     network_mode: service:firewall
     environment:
+      MODE: plain
+      UID: ${UID}
+      GID: ${GID}
+      HOME: ${HOME}
       NAMESERVER: 127.0.0.1 #dnsmasq
       HTTP_PROXY: http://proxy:3128
       HTTPS_PROXY: http://proxy:3128
@@ -61,10 +65,9 @@ services:
       https_proxy: http://proxy:3128
       NO_PROXY: localhost,127.0.0.1
       no_proxy: localhost,127.0.0.1
-      HOME: ${HOME:-/home/me}
     volumes:
       - nixStore:/nix
-      - homeVolume:${HOME:-/home/me}
+      - homeVolume:${HOME}
       - type: volume
         source: proxy-ca
         target: /usr/local/share/ca-certificates

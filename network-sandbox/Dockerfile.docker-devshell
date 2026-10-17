@@ -18,6 +18,32 @@ RUN nix profile add \
         nixpkgs#direnv nixpkgs#nix-direnv nixpkgs#gosu nixpkgs#bashInteractive \
     && nix store gc
 
+RUN cat <<'EOF' > /env-setup.sh && chmod +x /env-setup.sh
+#!/usr/bin/env sh
+set -eu
+
+MODE="$1"; shift
+case "$MODE" in
+	direnv)
+		direnv allow && exec direnv exec . "${@}"
+		;;
+	nix-develop*)
+		# nix develop ignores working directory.. preserve it explicitly
+		exec nix develop --no-warn-dirty "${MODE/nix-develop:/.#}" \
+			--command sh -c 'cd "$1"; shift; exec "$@"' \
+				sh_nix_develop_command "$PWD" "${@}"
+		;;
+	plain)
+		exec "${@}"
+		;;
+	*)
+		echo "Unknown mode $MODE -- $@"
+		exit 1
+		;;
+esac
+
+EOF
+
 RUN cat <<'EOF' > /.direnvrc
 : "${XDG_CACHE_HOME:="${HOME}/.cache"}"
 declare -A direnv_layout_dirs
@@ -34,26 +60,7 @@ EOF
 RUN cat <<'EOF' > /entrypoint.sh \
     && chmod +x /entrypoint.sh
 #!/usr/bin/env sh
-
-HOME=${HOME:-/home/me}
-GID=${GID:-1000}
-MODE=${MODE:-plain}
-
-case $MODE in
-	direnv)
-		EXECUTOR='direnv allow && exec direnv exec . "${@}"'
-		;;
-	nix-develop*)
-		EXECUTOR='exec nix develop --no-warn-dirty "${MODE/nix-develop:/.#}" --command "${@}"'
-		;;
-	plain)
-		EXECUTOR='exec "${@}"'
-		;;
-	*)
-		echo "Unknown mode $MODE"
-		exit 1
-		;;
-esac
+set -eu
 
 ensure_store_permission() {
 	owner=$(stat -c '%u:%g' /nix)
@@ -78,8 +85,10 @@ ensure_resolv_conf() {
 }
 
 as_user() {
-	exec gosu $UID:$GID sh -c "
-		export HOME=$HOME
+	exec gosu $UID:$GID sh -c '
+		export HOME=$1
+		export MODE=$2
+		shift 2
 		. /etc/profile.d/nix.sh;
 		# workaround_macos_volume_mount_permission
 		# - previous heuristic suggested 1s till permission okay
@@ -88,9 +97,9 @@ as_user() {
 		# https://github.com/lima-vm/lima/issues/4053#issuecomment-5272996309
 		#: ./* # workaround of macosFile permissions
 		# enumerate all partent directories to get permission of potential .git
-		(while :; do : ./*; [ "\$PWD" = / ] && break; cd ..; done)
-		$EXECUTOR
-	" sh "$@"
+		(while :; do : ./*; [ "$PWD" = / ] && break; cd ..; done)
+		/env-setup.sh "$MODE" "$@"
+	' sh_as_user "$HOME" "$MODE" "$@"
 }
 
 update-ca-certificates
