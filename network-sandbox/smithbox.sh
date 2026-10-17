@@ -74,7 +74,7 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
-# set-project-directory # that currently breaks the Dockerfile references
+set-project-directory # that currently breaks the Dockerfile references
 
 function cleanup() {
   project=$(docker-compose config --format json | jq -r '.name')
