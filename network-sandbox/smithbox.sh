@@ -5,6 +5,7 @@
 set -euo pipefail
 
 : "${DOCKER_BUILD_CONTEXT:=.}"
+export DOCKER_BUILD_CONTEXT
 COMPOSE_ARGS=(-f "$DOCKER_BUILD_CONTEXT/docker-compose.base.yaml")
 
 docker-compose() {
