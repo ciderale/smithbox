@@ -6,6 +6,7 @@ name: $PROJECT_NAME
 services:
   sandbox:
     build:
+      context: ${DOCKER_BUILD_CONTEXT}
       dockerfile: Dockerfile.docker-devshell
       args:
         NIX_EXTRA_CONF: |

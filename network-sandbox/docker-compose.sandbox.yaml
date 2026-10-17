@@ -4,6 +4,7 @@
 services:
   firewall:
     build:
+      context: ${DOCKER_BUILD_CONTEXT}
       dockerfile: Dockerfile.dnsmasq
     networks: [int]
     cap_add: [NET_ADMIN]
@@ -22,6 +23,7 @@ services:
 
   proxy:
     build:
+      context: ${DOCKER_BUILD_CONTEXT}
       dockerfile: Dockerfile.mitmproxy
     networks: [int]
     volumes:
