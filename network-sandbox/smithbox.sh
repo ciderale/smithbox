@@ -12,68 +12,7 @@ docker-compose() {
 }
 
 usage() {
-  cat <<EOF
-Smithbox: (docker-)sandboxed nix environment
-
-  provide your project specifics via additional
-  docker-compose.yaml files. They are merged using
-  sensible docker-compose yaml merging rules.
-
-usage $(basename "$0") [compose-file*] [command*]
-
-  the first argument which does not qualify as
-  docker-compose file (see below) and everything
-  after that is treated as command run in the
-  docker sandbox container.
-
-treated as docker-compose files:
-  <*.yaml>     : any yaml file
-  -f <file>    : explicitly listed (possibly non-yaml) file
-
-smithbox provides some sample docker-compose.yaml configuations:
-  base         : set UID/GID/HOME to current user (allways enabled)
-  project      : mount current git project
-
-  sandbox      : the actual smithbox dns/https/proxy sandbox
-  allowget     : allow HTTP GET&HEAD, but not POST/etc.
-  claude       : run 'nixpks#claude-code' with DISABLE_TELEMETRY
-
-  testing      : runs some sandbox testing nslookup/curl requests
-
-maintenance command:
-  reset-volumes: deletes the sandbox nix store & home volumes
-
-sandbox configuration variables:
-  TCP_ALLOWED_HOSTS: allow arbitrary tcp connection to those hosts
-  LOCALHOST_PORTS  : localhost ports to expose/forward into the sandbox
-  HTTP_DENY_ALL    : deny all http(s) request to theses hosts
-  HTTP_ALLOW_ALL   : allow any http(s) request to listed hosts
-  HTTP_SAFE_METHODS: allow http(s) with these methods to any host
-  MODE             : how to enter the project environment
-                     - direnv (using .envrc from repository root)
-                     - nix-develop:name (use flake->devShell.\$name)
-                     - plain: do not enter a dev shell
-
-environment variables available in docker compose
-  UID,GID       : user & group id of current user
-  PROJECT_ROOT  : git root directory currently in
-  PROJECT_NAME  : name of the git root directory
-
-example docker-compose.configuration:
-  services:
-    firewall:
-      environemnt:
-        TCP_ALLOWED_HOSTS: asdf.com jkl.com
-        LOCALHOST_PORTS: 5432,9000
-    proxy:
-      environemnt:
-        HTTP_DENY_ALL: bad.com
-        HTTP_ALLOW_ALL: my.web.com other.web.org
-        HTTP_SAFE_METHODS: get head option
-    sandbox:
-      environemnt:
-        MODE: direnv
-EOF
+  cat $DOCKER_BUILD_CONTEXT/usage.txt
   exit 1
 }
 

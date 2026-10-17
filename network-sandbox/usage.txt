@@ -1,0 +1,89 @@
+smithbox — run commands in a sandboxed docker/nix environment
+
+USAGE
+  smithbox.sh [COMPOSE_FILE/CONFIGURATION ...] [COMMAND [ARG ...]]
+
+Compose files configure the sandbox and are merged in order
+according to docker compose "Merge Compose Files" strategy.
+
+The first argument not recognized as a compose file or configurtion
+starts the command to run inside the sandbox. All remaining arguments
+belong to that command.
+
+COMPOSE FILES
+  *.yaml          Recognized automatically as a Compose file
+  -f FILE         Explicitly specify a Compose file, regardless
+                  of its filename extension
+
+BUILT-IN CONFIGURATIONS
+  base (always on)  Persistent HOME/Nix-Store for the current UID/GID
+  project           Mount the current git project (and preserve PWD)
+  sandbox           Enable the sandbox firewall, DNS, HTTPS proxy setup
+  allowget          Allow HTTP GET and HEAD requests
+  claude            Run nixpkgs#claude-code (allow claude.ai/etc. no telemetry)
+  testing           Run sandbox connectivity tests (nslookup, curl)
+
+PROVIDED ENVIRONMENT
+  The following variables are available in Docker Compose:
+
+    UID             Current user's numeric ID
+    GID             Current group's numeric ID
+    PROJECT_ROOT    Absolute path to the current Git root
+    PROJECT_NAME    Name of the current Git root directory
+
+SERVICE ENVIRONMENT VARIABLES
+
+  firewall service:
+    TCP_ALLOWED_HOSTS   Allow TCP connections to these hosts
+    LOCALHOST_PORTS     Forward host localhost ports into the sandbox
+
+  proxy service:
+    HTTP_DENY_ALL       Deny HTTP(S) requests to these hosts
+    HTTP_ALLOW_ALL      Allow HTTP(S) requests to these hosts
+    HTTP_SAFE_METHODS   Allow these HTTP(S) methods to any host
+
+  sandbox service:
+    MODE                Select how to enter the project environment:
+      plain               Just sh - Do not enter a dev shell
+      direnv              Load the repository root .envrc
+      nix-develop:NAME    Use flake devShell.NAME
+
+EXAMPLE COMPOSE CONFIGURATION
+
+  services:
+    firewall:
+      environment:
+        TCP_ALLOWED_HOSTS: "asdf.com jkl.com"
+        LOCALHOST_PORTS: "5432,9000"
+
+    proxy:
+      environment:
+        HTTP_DENY_ALL: "bad.com"
+        HTTP_ALLOW_ALL: "my.web.com other.web.org"
+        HTTP_SAFE_METHODS: "get head option"
+
+    sandbox:
+      environment:
+        MODE: nix-develop:default
+
+EXAMPLES
+  # Run sandboxed claude-code with your git project mounted
+  smithbox.sh project sandbox claude
+
+  # .. same setup as above, but run custom entry command
+  smithbox.sh project sandbox claude ls -lah
+
+  # Run without sandbox (e.g. for initial downloads)
+  smithbox.sh project some-command
+
+  # .. apply custom sandbox rules (see configuration)
+  smithbox.sh project sandbox your-sandbox-rules.yaml
+
+  # minimal nix flakes setup with persistent home/store
+  smithbox.sh sh
+
+  # Run the sandbox connectivity tests
+  smithbox.sh testing
+
+MAINTENANCE
+  reset-volumes    Delete the sandbox Nix store and home volumes
