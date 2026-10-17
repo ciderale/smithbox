@@ -8,9 +8,6 @@ services:
       HTTP_SAFE_METHODS: get head
   sandbox:
     environment:
-      UID: $UID
-      GID: $GID
-      HOME: $HOME
       MODE: nix-develop:default
     working_dir: $PWD
     volumes:
