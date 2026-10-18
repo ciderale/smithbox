@@ -22,6 +22,7 @@ BUILT-IN CONFIGURATIONS
   allowget          Allow HTTP GET and HEAD requests
   claude            Run nixpkgs#claude-code (allow claude.ai/etc. no telemetry)
   testing           Run sandbox connectivity tests (nslookup, curl)
+  mitmweb           Expose mitmweb on port 127.0.01:8081 using password
 
 PROVIDED ENVIRONMENT
   The following variables are available in Docker Compose:

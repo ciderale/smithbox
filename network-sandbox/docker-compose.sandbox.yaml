@@ -30,10 +30,6 @@ services:
       - proxy-ca:/proxy-ca:rw
     environment:
       RULE_FILES: "/mitm.rules.py"
-      WEB_PASSWORD: password
-    # ports: #don't auto expose for concurrent usage
-      #- 3128:3128 #mitm proxy
-      #- 8081:8081 #mitmweb interface
     healthcheck:
       test: ["CMD", "python", "-c", "import socket;socket.create_connection(('127.0.0.1',3128),2).close()"]
       interval: 30s

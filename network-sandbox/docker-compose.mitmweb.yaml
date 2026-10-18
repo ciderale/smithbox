@@ -1,0 +1,10 @@
+# SPDX-FileCopyrightText: 2026 Alain Lehmann
+#
+# SPDX-License-Identifier: MIT
+
+services:
+  proxy:
+    environment:
+      WEB_PASSWORD: password
+    ports: #don't auto expose for concurrent usage
+      - 127.0.0.1:8081:8081 # mitmweb interface

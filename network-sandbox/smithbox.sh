@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+
 # SPDX-FileCopyrightText: 2026 Alain Lehmann
 #
 # SPDX-License-Identifier: MIT
@@ -55,7 +56,7 @@ while [[ $# -gt 0 ]]; do
       docker-compose down --volumes
       exit
       ;;
-    project|sandbox|allowget|claude|testing)
+    project|sandbox|allowget|claude|testing|mitmweb)
       add-compose "$DOCKER_BUILD_CONTEXT/docker-compose.$1.yaml"
       shift
       ;;
