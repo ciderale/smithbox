@@ -5,8 +5,8 @@
 services:
   sandbox:
     environment:
-      MODE: nix-develop:default
-    working_dir: $PWD
+      MODE: direnv
+    working_dir: $PWD # enable starting in a subfolder of PROJECT_ROOT
     volumes:
       - $PROJECT_ROOT:$PROJECT_ROOT
 
