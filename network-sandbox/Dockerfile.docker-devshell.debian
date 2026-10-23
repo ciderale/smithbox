@@ -1,0 +1,164 @@
+# SPDX-FileCopyrightText: 2026 Alain Lehmann
+#
+# SPDX-License-Identifier: MIT
+
+FROM debian:bookworm-slim
+
+ARG NIX_EXTRA_CONF=""
+
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends \
+			curl ca-certificates p11-kit \
+			bind9-dnsutils \
+ && rm -rf /var/lib/apt/lists/*
+RUN curl -sSfL https://artifacts.nixos.org/nix-installer \
+			| sh -s -- install linux \
+					--extra-conf "$NIX_EXTRA_CONF" \
+					--init none --enable-flakes --no-confirm
+
+ENV PATH=/nix/var/nix/profiles/default/bin:$PATH
+
+RUN nix profile add \
+        nixpkgs#direnv nixpkgs#nix-direnv nixpkgs#gosu nixpkgs#bashInteractive \
+    && nix store gc
+
+RUN cat <<'EOF' > /env-setup.sh && chmod +x /env-setup.sh
+#!/usr/bin/env sh
+set -eu
+
+MODE="$1"; shift
+case "$MODE" in
+	direnv)
+		direnv allow && exec direnv exec . "${@}"
+		;;
+	nix-develop*)
+		# nix develop ignores working directory.. preserve it explicitly
+		exec nix develop --no-warn-dirty "${MODE/nix-develop:/.#}" \
+			--command sh -c 'cd "$1"; shift; exec "$@"' \
+				sh_nix_develop_command "$PWD" "${@}"
+		;;
+	plain)
+		exec "${@}"
+		;;
+	*)
+		echo "Unknown mode $MODE -- $@"
+		exit 1
+		;;
+esac
+
+EOF
+
+RUN cat <<'EOF' > /.direnvrc
+: "${XDG_CACHE_HOME:="${HOME}/.cache"}"
+declare -A direnv_layout_dirs
+direnv_layout_dir() {
+    local hash path
+    echo "${direnv_layout_dirs[$PWD]:=$(
+        hash="$(sha1sum - <<< "$PWD" | head -c40)"
+        path="${PWD//[^a-zA-Z0-9]/-}"
+        echo "${XDG_CACHE_HOME}/direnv/layouts/${hash}${path}"
+    )}"
+}
+EOF
+
+RUN cat <<'EOF' > /entrypoint.sh \
+    && chmod +x /entrypoint.sh
+#!/usr/bin/env sh
+set -eu
+
+ensure_store_permission() {
+	owner=$(stat -c '%u:%g' /nix)
+	if [ "$owner" != "$UID:$GID" ]; then
+		echo "Fixing /nix ownership..."
+		chown -R "$UID:$GID" /nix
+	fi
+}
+
+ensure_home() {
+	# add a guard to prevent modifying the real host users home volume
+	# if $HOME accidentially points to it (smithbox project called from home)
+	SMITH_BOX_HOME_MARKER="$HOME/.smithbox_home"
+	SMITH_BOX_HOME_VERSION="version1"
+
+	# -xdev: do not descend into another filesystem
+	# -quit: exit on first file found
+	HOME_CONTENT="$(find "$HOME" -xdev -type f -print -quit)"
+	if [[ -z "$HOME_CONTENT" ]]; then
+		echo "Empty home directory $HOME: start setup procedure" >&2
+		chown -v $UID:$GID "$HOME"
+
+		local NIX_PROFILE="$HOME/.nix-profile"
+		echo "Setting up $NIX_PROFILE" >&2
+		ln -fs /nix/var/nix/profiles/per-user/root/profile "$NIX_PROFILE"
+		chown -v $UID:$GID "$NIX_PROFILE"
+
+		echo "Setting up .local/state/nix/profile" >&2
+		mkdir -p "$HOME/.local/state/nix/profiles"
+		chown -vR $UID:$GID "$HOME/.local"
+
+		local DIRENVRC=$HOME/.config/direnv/direnvrc
+		echo "Setting up $DIRENVRC" >&2
+		mkdir -p "$(dirname "$DIRENVRC")"
+		cp /.direnvrc "$DIRENVRC"
+		chown -vR $UID:$GID "$HOME/.config"
+
+		#echo "Setting ownership to $UID:$GID (using -xdev to avoid other volumes)" >&2
+		#find "$HOME" -xdev -print -exec chown $UID:$GID {} +
+
+		#echo "UID/GID=$UID/$GID"
+		#find "$HOME" -type d -exec ls -ld {} \;
+		echo "$SMITH_BOX_HOME_VERSION" >  "$SMITH_BOX_HOME_MARKER"
+		echo "Setting home folder completed." >&2
+	elif [ ! -e "$SMITH_BOX_HOME_MARKER" ]; then
+		echo "ERROR: Home volume has no valid marker: $SMITH_BOX_HOME_MARKER" >&2
+		echo "ERROR: Home volume is not empty. contains at least: $HOME_CONTENT" >&2
+		exit 1
+	elif [ "$(cat "$SMITH_BOX_HOME_MARKER")" != "$SMITH_BOX_HOME_VERSION" ]; then
+		echo "ERROR: Home volume marker version incorrect: '$(cat "$SMITH_BOX_HOME_MARKER")' but expected '$SMITH_BOX_HOME_VERSION'" >&2
+		exit 2
+	else
+		echo "Valid '$SMITH_BOX_HOME_VERSION' smithbox home marker found." >&2
+	fi
+}
+
+ensure_resolv_conf() {
+	if [ -n "${NAMESERVER:-}" ]; then
+		echo "nameserver $NAMESERVER" > /etc/resolv.conf
+	fi
+}
+
+as_user() {
+	exec gosu $UID:$GID sh -c '
+		export HOME=$1
+		export MODE=$2
+		shift 2
+		. /etc/profile.d/nix.sh;
+		# workaround_macos_volume_mount_permission
+		# - previous heuristic suggested 1s till permission okay
+		# - waiting before user changes seems to not have an impact
+		# - enumerating directory content (e.g. ls . or glob ./*) works too
+		# https://github.com/lima-vm/lima/issues/4053#issuecomment-5272996309
+		#: ./* # workaround of macosFile permissions
+		# enumerate all partent directories to get permission of potential .git
+		(while :; do : ./*; [ "$PWD" = / ] && break; cd ..; done)
+		/env-setup.sh "$MODE" "$@"
+	' sh_as_user "$HOME" "$MODE" "$@"
+}
+
+ensure_cacerts() {
+	update-ca-certificates
+	JAVA_CERTS=/etc/ssl/certs/java
+	mkdir -p "$JAVA_CERTS"
+	trust extract --filter=ca-anchors --format=java-cacerts --purpose=server-auth --overwrite "$JAVA_CERTS/cacerts"
+}
+
+ensure_cacerts
+ensure_resolv_conf
+ensure_home
+ensure_store_permission
+as_user "${@}"
+EOF
+
+
+ENTRYPOINT [ "/entrypoint.sh" ]
+CMD [ "sh" ]

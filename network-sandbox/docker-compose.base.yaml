@@ -7,7 +7,7 @@ services:
   sandbox:
     build:
       context: ${DOCKER_BUILD_CONTEXT}
-      dockerfile: Dockerfile.docker-devshell
+      dockerfile: Dockerfile.docker-devshell.debian
       args:
         NIX_EXTRA_CONF: |
           tarball-ttl = 86400
