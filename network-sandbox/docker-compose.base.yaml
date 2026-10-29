@@ -9,6 +9,7 @@ services:
       context: ${DOCKER_BUILD_CONTEXT}
       dockerfile: Dockerfile.docker-devshell.debian
       args:
+        DEBIAN_VERSION: 13-slim
         NIX_EXTRA_CONF: |
           tarball-ttl = 86400
           max-jobs = auto

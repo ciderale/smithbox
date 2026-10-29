@@ -1,8 +1,8 @@
 # SPDX-FileCopyrightText: 2026 Alain Lehmann
 #
 # SPDX-License-Identifier: MIT
-
-FROM debian:bookworm-slim
+ARG DEBIAN_VERSION=13-slim
+FROM debian:$DEBIAN_VERSION
 
 ARG NIX_EXTRA_CONF=""
 

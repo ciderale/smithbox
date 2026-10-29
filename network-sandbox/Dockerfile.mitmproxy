@@ -1,8 +1,8 @@
 # SPDX-FileCopyrightText: 2026 Alain Lehmann
 #
 # SPDX-License-Identifier: MIT
-
-FROM mitmproxy/mitmproxy
+ARG MITMPROXY_VERSION=latest
+FROM mitmproxy/mitmproxy:${MITMPROXY_VERSION}
 
 
 RUN cat <<'EOF' > /entrypoint.sh \

@@ -6,6 +6,8 @@ services:
     build:
       context: ${DOCKER_BUILD_CONTEXT}
       dockerfile: Dockerfile.dnsmasq
+      args:
+        DEBIAN_VERSION: 13-slim
     networks: [int]
     cap_add: [NET_ADMIN]
     sysctls:
@@ -25,6 +27,8 @@ services:
     build:
       context: ${DOCKER_BUILD_CONTEXT}
       dockerfile: Dockerfile.mitmproxy
+      args:
+        MITMPROXY_VERSION: 12.3.1
     networks: [int]
     volumes:
       - proxy-ca:/proxy-ca:rw

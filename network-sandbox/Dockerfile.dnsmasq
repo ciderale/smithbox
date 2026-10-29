@@ -1,8 +1,8 @@
 # SPDX-FileCopyrightText: 2026 Alain Lehmann
 #
 # SPDX-License-Identifier: MIT
-
-FROM debian:bookworm
+ARG DEBIAN_VERSION=13-slim
+FROM debian:$DEBIAN_VERSION
 
 RUN apt-get update && \
     apt-get install -y dnsmasq nftables iproute2 dnsutils
