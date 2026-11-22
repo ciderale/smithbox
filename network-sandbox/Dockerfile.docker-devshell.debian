@@ -88,7 +88,7 @@ ensure_home() {
 
 	# -xdev: do not descend into another filesystem
 	# -quit: exit on first file found
-	HOME_CONTENT="$(find "$HOME" -xdev "${FIND_EXCLUSION_ARGS[@]}" -print -quit)"
+	HOME_CONTENT="$(find "$HOME" -type f -xdev "${FIND_EXCLUSION_ARGS[@]}" -print -quit)"
 	if [[ -z "$HOME_CONTENT" ]]; then
 		echo "Empty home directory $HOME: start setup procedure" >&2
 		chown --verbose "$UID:$GID" "$HOME"
