@@ -80,11 +80,11 @@ ensure_home() {
 	SMITH_BOX_HOME_MARKER="$HOME/.smithbox_home"
 	SMITH_BOX_HOME_VERSION="version1"
 
-	# exclusion of additional submounts
+	# exclusion of additional submounts (not pruning the home volume mount itself)
 	FIND_EXCLUSION_ARGS=()
 	while IFS= read -r mountpoint; do
-    FIND_EXCLUSION_ARGS+=( ! -path "$mountpoint" )
-	done < <(findmnt --target "$HOME" --submounts --raw --noheadings -o TARGET)
+    FIND_EXCLUSION_ARGS+=( -path "$mountpoint" -prune -o )
+	done < <(findmnt --target "$HOME" --submounts --raw --noheadings -o TARGET | tail -n +2)
 
 	# -xdev: do not descend into another filesystem
 	# -quit: exit on first file found
